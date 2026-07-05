@@ -8,14 +8,13 @@ export default function DashboardPage() {
   return (
     <div className="p-6">
       <div className="mb-8">
-      <h1 className="dashboard-title">
-  Dashboard
-</h1>
+        <h1 className="dashboard-title">Dashboard</h1>
 
-  <p className="mt-2 text-gray-500">
-    Monitor invoice performance, payment trends and customer risks.
-  </p>
-</div>
+        <p className="mt-2 text-gray-500">
+          Monitor invoice performance, payment trends and customer risks.
+        </p>
+      </div>
+
       <div className="dashboard-kpi-grid">
         <KpiCard
           title="Total Invoiced"
@@ -41,16 +40,19 @@ export default function DashboardPage() {
           description="Past-due invoice amount"
         />
       </div>
+
       <div className="dashboard-analytics-grid">
-  <PaymentStatusCard />
-  <PaymentChannelCard />
-</div>
-<div className="dashboard-risk-section">
-  <RiskInsightsCard />
-  </div>
-  <div className="dashboard-green-section">
-  <GreenInvoiceCard />
-</div>
+        <PaymentStatusCard />
+        <PaymentChannelCard />
+      </div>
+
+      <div className="dashboard-risk-section">
+        <RiskInsightsCard />
+      </div>
+
+      <div className="dashboard-green-section">
+        <GreenInvoiceCard />
+      </div>
     </div>
   );
 }

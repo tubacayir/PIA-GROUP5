@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Sidebar from "./components/layout/Sidebar";
 import CustomerListPage from "./pages/CustomerListPage";
+import CustomerDetailPage from "./pages/CustomerDetailPage";
 import InvoiceListPage from "./pages/InvoiceListPage";
 import DashboardPage from "./pages/DashboardPage";
 
@@ -18,9 +19,13 @@ function App() {
 
             <Route path="/customers" element={<CustomerListPage />} />
 
+            <Route
+              path="/customers/:id"
+              element={<CustomerDetailPage />}
+            />
+
             <Route path="/invoices" element={<InvoiceListPage />} />
 
-            
             <Route
               path="/faturalar"
               element={<Navigate to="/invoices" replace />}
