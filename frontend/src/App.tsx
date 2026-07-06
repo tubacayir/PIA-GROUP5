@@ -16,6 +16,7 @@ import InvoiceListPage from "./pages/InvoiceListPage";
 import LoginPage from "./features/auth/LoginPage";
 import ProtectedRoute from "./features/auth/ProtectedRoute";
 import RoleRoute from "./features/auth/RoleRoute";
+import LogoutPage from "./features/auth/LogoutPage";
 
 function SystemAdminLayout() {
   return (
@@ -62,6 +63,7 @@ function App() {
       <Routes>
         {/* Public routes */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/logout" element={<LogoutPage />} />
 
         <Route
           path="/unauthorized"
