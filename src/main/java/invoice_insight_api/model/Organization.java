@@ -23,6 +23,9 @@ public class Organization {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "password", nullable = false, length = 255)
+    private String password;
+
     @Column(name = "sector")
     private String sector;
 

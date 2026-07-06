@@ -39,6 +39,9 @@ public class Customer {
     @Column(name = "phone_number", nullable = false, unique = true, length = 20)
     private String phoneNumber;
 
+    @Column(name = "password", nullable = false, length = 255)
+    private String password;
+
     @Column(name = "birth_date", nullable = false)
     private LocalDate birthDate;
 
