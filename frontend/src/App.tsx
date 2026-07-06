@@ -1,38 +1,150 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter,
+  Navigate,
+  Outlet,
+  Route,
+  Routes,
+} from "react-router-dom";
+
 import Sidebar from "./components/layout/Sidebar";
+
+import DashboardPage from "./pages/DashboardPage";
 import CustomerListPage from "./pages/CustomerListPage";
 import CustomerDetailPage from "./pages/CustomerDetailPage";
 import InvoiceListPage from "./pages/InvoiceListPage";
-import DashboardPage from "./pages/DashboardPage";
+
+import LoginPage from "./features/auth/LoginPage";
+import ProtectedRoute from "./features/auth/ProtectedRoute";
+import RoleRoute from "./features/auth/RoleRoute";
+
+function SystemAdminLayout() {
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Sidebar />
+
+      <main className="ml-64 min-h-screen w-[calc(100%-16rem)] bg-slate-50 p-6">
+        <Outlet />
+      </main>
+    </div>
+  );
+}
+
+function UnauthorizedPage() {
+  return (
+    <div>
+      <h1>Yetkisiz Erişim</h1>
+      <p>Bu sayfayı görüntüleme yetkiniz yok.</p>
+    </div>
+  );
+}
+
+function OrganizationDashboardPlaceholder() {
+  return (
+    <div>
+      <h1>Organization Admin Dashboard</h1>
+      <p>Kurumsal giriş başarılı.</p>
+    </div>
+  );
+}
+
+function CustomerProfilePlaceholder() {
+  return (
+    <div>
+      <h1>Customer Profile</h1>
+      <p>Bireysel giriş başarılı.</p>
+    </div>
+  );
+}
 
 function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-gray-50">
-        <Sidebar />
+      <Routes>
+        {/* Public routes */}
+        <Route path="/login" element={<LoginPage />} />
 
-        <main className="ml-64 min-h-screen p-6">
-          <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route
+          path="/unauthorized"
+          element={<UnauthorizedPage />}
+        />
 
-            <Route path="/dashboard" element={<DashboardPage />} />
+        {/* Protected routes */}
+        <Route element={<ProtectedRoute />}>
+          {/* System Admin */}
+          <Route
+            element={
+              <RoleRoute allowedRoles={["SYSTEM_ADMIN"]} />
+            }
+          >
+            <Route element={<SystemAdminLayout />}>
+              <Route
+                path="/dashboard"
+                element={<DashboardPage />}
+              />
 
-            <Route path="/customers" element={<CustomerListPage />} />
+              <Route
+                path="/customers"
+                element={<CustomerListPage />}
+              />
 
+              <Route
+                path="/customers/:id"
+                element={<CustomerDetailPage />}
+              />
+
+              <Route
+                path="/invoices"
+                element={<InvoiceListPage />}
+              />
+
+              <Route
+                path="/faturalar"
+                element={
+                  <Navigate to="/invoices" replace />
+                }
+              />
+            </Route>
+          </Route>
+
+          {/* Organization Admin */}
+          <Route
+            element={
+              <RoleRoute
+                allowedRoles={["ORGANIZATION_ADMIN"]}
+              />
+            }
+          >
             <Route
-              path="/customers/:id"
-              element={<CustomerDetailPage />}
+              path="/organization/dashboard"
+              element={
+                <OrganizationDashboardPlaceholder />
+              }
             />
+          </Route>
 
-            <Route path="/invoices" element={<InvoiceListPage />} />
-
+          {/* Customer */}
+          <Route
+            element={
+              <RoleRoute allowedRoles={["CUSTOMER"]} />
+            }
+          >
             <Route
-              path="/faturalar"
-              element={<Navigate to="/invoices" replace />}
+              path="/customer/profile"
+              element={<CustomerProfilePlaceholder />}
             />
-          </Routes>
-        </main>
-      </div>
+          </Route>
+        </Route>
+
+        <Route
+          path="/"
+          element={<Navigate to="/login" replace />}
+        />
+
+        <Route
+          path="*"
+          element={<Navigate to="/" replace />}
+        />
+      </Routes>
     </BrowserRouter>
   );
 }
