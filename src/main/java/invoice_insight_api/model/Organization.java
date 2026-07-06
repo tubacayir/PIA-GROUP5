@@ -18,8 +18,8 @@ public class Organization {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(unique = true,name = "organization_number", nullable = false,length = 10)
-    private String organizationNumber;
+    @Column(unique = true,name = "taxIdentity_number", nullable = false,length = 10)
+    private String axIdentityNumber;
     @Column(name = "name")
     private String name;
 
