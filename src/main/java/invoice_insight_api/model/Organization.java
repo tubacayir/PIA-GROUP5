@@ -18,8 +18,10 @@ public class Organization {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(unique = true,name = "taxIdentity_number", nullable = false,length = 10)
-    private String axIdentityNumber;
+
+    @Column(unique = true, name = "taxIdentity_number", nullable = false, length = 10)
+    private String taxIdentityNumber;
+
     @Column(name = "name")
     private String name;
 
@@ -38,16 +40,11 @@ public class Organization {
     @Enumerated(EnumType.STRING)
     private Status status;
 
-
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-
-
-
 
 
 }
