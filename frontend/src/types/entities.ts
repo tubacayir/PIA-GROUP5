@@ -6,7 +6,13 @@
 // 1. ENUM / UNION TYPES
 export type CustomerType = "Individual" | "Corporate";
 
-export type PaymentChannel = "Mobile_App" | "Web" | "Bank_App" | "Store" | null;
+export type PaymentChannel =
+  | "Mobile_App"
+  | "Web"
+  | "Bank_App"
+  | "Store"
+  | "Auto_Payment"
+  | null;
 
 export type DeliveryMethod = "Digital" | "Paper";
 

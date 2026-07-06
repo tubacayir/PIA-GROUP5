@@ -1,8 +1,8 @@
 import {
-  CircleDollarSign,
+  CreditCard,
   ReceiptText,
-  TriangleAlert,
-  WalletCards,
+  Smartphone,
+  Users,
 } from "lucide-react";
 
 import DashboardHeader from "../components/dashboard/DashboardHeader";
@@ -12,6 +12,7 @@ import PaymentChannelCard from "../components/dashboard/PaymentChannelCard";
 import PaymentStatusCard from "../components/dashboard/PaymentStatusCard";
 import RiskInsightsCard from "../components/dashboard/RiskInsightsCard";
 import RevenueTrendChart from "../components/dashboard/RevenueTrendChart";
+import { datasetScenario } from "../mock/datasetScenario";
 
 export default function DashboardPage() {
   return (
@@ -20,44 +21,53 @@ export default function DashboardPage() {
 
       <div className="dashboard-kpi-grid">
         <KpiCard
-          title="Total Billed"
-          value="₺13.05M"
-          description="Total value of issued invoices"
-          badge="30K+ invoices"
-          icon={ReceiptText}
+          title="Total Customers"
+          value={datasetScenario.customers.total.toLocaleString("en-US")}
+          description="Total number of real customers"
+          badge={`${datasetScenario.customers.hybrid.toLocaleString(
+            "en-US"
+          )} hybrid customers`}
+          icon={Users}
           tone="blue"
         />
 
         <KpiCard
-          title="Collected"
-          value="₺11.09M"
-          description="Successfully collected invoice value"
-          badge="85% collection rate"
-          icon={CircleDollarSign}
+          title="Total Lines"
+          value={datasetScenario.lines.total.toLocaleString("en-US")}
+          description="Individual and corporate mobile lines"
+          badge={`${datasetScenario.lines.corporate.toLocaleString(
+            "en-US"
+          )} corporate lines`}
+          icon={Smartphone}
           tone="green"
         />
 
         <KpiCard
-          title="Outstanding"
-          value="₺1.31M"
-          description="Invoice value awaiting payment"
-          badge="10% of total"
-          icon={WalletCards}
+          title="Total Invoices"
+          value={datasetScenario.invoices.total.toLocaleString("en-US")}
+          description={`${datasetScenario.invoices.historyMonths}-month invoice history`}
+          badge={`${datasetScenario.invoices.corporate.toLocaleString(
+            "en-US"
+          )} corporate invoices`}
+          icon={ReceiptText}
           tone="amber"
         />
 
-        <KpiCard
-          title="Overdue"
-          value="₺652.5K"
-          description="Past-due unpaid invoice value"
-          badge="5% requires attention"
-          icon={TriangleAlert}
-          tone="red"
-        />
+<KpiCard
+  title="Total Payments"
+  value={datasetScenario.invoices.total.toLocaleString(
+    "en-US"
+  )}
+  description="Payment records across 3 billing periods"
+  badge="36,000 payment records"
+  icon={CreditCard}
+  tone="red"
+/>
       </div>
+
       <div className="dashboard-primary-chart">
-  <RevenueTrendChart />
-</div>
+        <RevenueTrendChart />
+      </div>
 
       <div className="dashboard-analytics-grid">
         <PaymentStatusCard />

@@ -1,76 +1,114 @@
+import { datasetScenario } from "./datasetScenario";
+
+const calculatePercentage = (
+  value: number,
+  total: number
+) => Math.round((value / total) * 100);
+
 export const greenInvoiceData = {
-    digitalInvoices: 18_000,
-    digitalInvoiceRate: 60,
-    carbonSavedKg: 900,
-  };
-  export const revenueTrendData = [
-    {
-      month: "Jan",
-      billed: 1_950_000,
-      collected: 1_650_000,
-    },
-    {
-      month: "Feb",
-      billed: 2_050_000,
-      collected: 1_720_000,
-    },
-    {
-      month: "Mar",
-      billed: 2_100_000,
-      collected: 1_800_000,
-    },
+  digitalInvoices: datasetScenario.delivery.digital,
+
+  paperInvoices: datasetScenario.delivery.paper,
+
+  digitalInvoiceRate: calculatePercentage(
+    datasetScenario.delivery.digital,
+    datasetScenario.invoices.total
+  ),
+
+  carbonSavedKg:
+    datasetScenario.sustainability.carbonSavedKg,
+
+  treesEquivalent:
+    datasetScenario.sustainability.treesEquivalent,
+};
+
+
+
+  export const invoiceTrendData = [
     {
       month: "Apr",
-      billed: 2_200_000,
-      collected: 1_880_000,
+      issued: 12_000,
+      paidOnTime: 9_800,
     },
     {
       month: "May",
-      billed: 2_300_000,
-      collected: 1_980_000,
+      issued: 12_000,
+      paidOnTime: 10_050,
     },
     {
       month: "Jun",
-      billed: 2_450_000,
-      collected: 2_060_000,
+      issued: 12_000,
+      paidOnTime: 10_750,
     },
   ];
-  
-  export const paymentStatusChartData = [
-    {
-      name: "Paid on time",
-      value: 25_500,
-      percentage: 85,
-      color: "#16a34a",
-    },
-    {
-      name: "Paid late",
-      value: 3_000,
-      percentage: 10,
-      color: "#f59e0b",
-    },
-    {
-      name: "Unpaid",
-      value: 1_500,
-      percentage: 5,
-      color: "#ef4444",
-    },
-  ];
-  export const paymentChannelData = [
-    {
-      label: "Mobile App",
-      percentage: 40,
-    },
-    {
-      label: "Web",
-      percentage: 20,
-    },
-    {
-      label: "Bank App",
-      percentage: 25,
-    },
-    {
-      label: "Store",
-      percentage: 15,
-    },
-  ];
+
+const unpaidInvoices =
+  datasetScenario.latePaymentBreakdown
+    .twoMonthsOrMoreUnpaid +
+  datasetScenario.latePaymentBreakdown
+    .oneMonthUnpaid;
+
+export const paymentStatusChartData = [
+  {
+    name: "Paid on time",
+    value: datasetScenario.paymentStatus.paidOnTime,
+    percentage: calculatePercentage(
+      datasetScenario.paymentStatus.paidOnTime,
+      datasetScenario.invoices.total
+    ),
+    color: "#16a34a",
+  },
+  {
+    name: "Late payment",
+    value:
+      datasetScenario.latePaymentBreakdown
+        .oneToTenDaysLate,
+    percentage: calculatePercentage(
+      datasetScenario.latePaymentBreakdown
+        .oneToTenDaysLate,
+      datasetScenario.invoices.total
+    ),
+    color: "#f59e0b",
+  },
+  {
+    name: "Unpaid",
+    value: unpaidInvoices,
+    percentage: calculatePercentage(
+      unpaidInvoices,
+      datasetScenario.invoices.total
+    ),
+    color: "#ef4444",
+  },
+];
+
+export const paymentChannelData = [
+  {
+    label: "Bank App",
+    percentage: calculatePercentage(
+      datasetScenario.paymentChannels.bankApp,
+      datasetScenario.invoices.total
+    ),
+  },
+  {
+    label: "Piacell App",
+    percentage: calculatePercentage(
+      datasetScenario.paymentChannels.piacellMobileApp,
+      datasetScenario.invoices.total
+    ),
+  },
+  {
+    label: "Auto Payment",
+    percentage: calculatePercentage(
+      datasetScenario.paymentChannels
+        .automaticCreditCard,
+      datasetScenario.invoices.total
+    ),
+  },
+  {
+    label: "Store",
+    percentage: calculatePercentage(
+      datasetScenario.paymentChannels.store,
+      datasetScenario.invoices.total
+    ),
+  },
+];

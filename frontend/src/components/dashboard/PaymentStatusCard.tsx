@@ -9,6 +9,11 @@ import {
   import { paymentStatusChartData } from "../../mock/dashboardMock";
   
   export default function PaymentStatusCard() {
+    const totalInvoices = paymentStatusChartData.reduce(
+      (total, item) => total + item.value,
+      0
+    );
+  
     return (
       <section className="analytics-card payment-health-card">
         <div className="chart-card-header">
@@ -48,7 +53,9 @@ import {
             </ResponsiveContainer>
   
             <div className="payment-donut-center">
-              <strong>30K</strong>
+            <strong>
+  {totalInvoices.toLocaleString("en-US")}
+</strong>
               <span>Invoices</span>
             </div>
           </div>

@@ -12,11 +12,14 @@ import DashboardPage from "./pages/DashboardPage";
 import CustomerListPage from "./pages/CustomerListPage";
 import CustomerDetailPage from "./pages/CustomerDetailPage";
 import InvoiceListPage from "./pages/InvoiceListPage";
+import CustomerProfilePage from "./pages/CustomerProfilePage";
+import OrganizationDashboardPage from "./pages/OrganizationDashboardPage";
 
 import LoginPage from "./features/auth/LoginPage";
 import ProtectedRoute from "./features/auth/ProtectedRoute";
 import RoleRoute from "./features/auth/RoleRoute";
 import LogoutPage from "./features/auth/LogoutPage";
+
 
 function SystemAdminLayout() {
   return (
@@ -39,23 +42,11 @@ function UnauthorizedPage() {
   );
 }
 
-function OrganizationDashboardPlaceholder() {
-  return (
-    <div>
-      <h1>Organization Admin Dashboard</h1>
-      <p>Kurumsal giriş başarılı.</p>
-    </div>
-  );
-}
 
-function CustomerProfilePlaceholder() {
-  return (
-    <div>
-      <h1>Customer Profile</h1>
-      <p>Bireysel giriş başarılı.</p>
-    </div>
-  );
-}
+
+
+
+
 
 function App() {
   return (
@@ -117,11 +108,9 @@ function App() {
             }
           >
             <Route
-              path="/organization/dashboard"
-              element={
-                <OrganizationDashboardPlaceholder />
-              }
-            />
+  path="/organization/dashboard"
+  element={<OrganizationDashboardPage />}
+/>
           </Route>
 
           {/* Customer */}
@@ -131,9 +120,9 @@ function App() {
             }
           >
             <Route
-              path="/customer/profile"
-              element={<CustomerProfilePlaceholder />}
-            />
+  path="/customer/profile"
+  element={<CustomerProfilePage />}
+/>
           </Route>
         </Route>
 

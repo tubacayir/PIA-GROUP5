@@ -1,33 +1,59 @@
 import { create } from "zustand";
+
+import { generateMockInvoicesForCustomers } from "../mock/mockData";
 import type { Invoice } from "../types/entities";
 import { useCustomerStore } from "./customerStore";
-import { generateMockInvoicesForCustomers } from "../mock/mockData";
 
 interface InvoiceStore {
   invoices: Invoice[];
   addInvoice: (invoice: Invoice) => void;
-  updateInvoice: (id: string, updated: Partial<Invoice>) => void;
+  updateInvoice: (
+    id: string,
+    updated: Partial<Invoice>
+  ) => void;
   deleteInvoice: (id: string) => void;
 }
 
-export const useInvoiceStore = create<InvoiceStore>((set) => ({
-  invoices: generateMockInvoicesForCustomers(
-    useCustomerStore.getState().customers,
-    "2026-06"
-  ),
+const BILLING_PERIODS = [
+  "2026-04",
+  "2026-05",
+  "2026-06",
+];
 
-  addInvoice: (invoice) =>
-    set((state) => ({ invoices: [...state.invoices, invoice] })),
+const customers =
+  useCustomerStore.getState().customers;
 
-  updateInvoice: (id, updated) =>
-    set((state) => ({
-      invoices: state.invoices.map((inv) =>
-        inv.invoice_id === id ? { ...inv, ...updated } : inv
-      ),
-    })),
+const initialInvoices = BILLING_PERIODS.flatMap(
+  (billingPeriod) =>
+    generateMockInvoicesForCustomers(
+      customers,
+      billingPeriod
+    )
+);
 
-  deleteInvoice: (id) =>
-    set((state) => ({
-      invoices: state.invoices.filter((inv) => inv.invoice_id !== id),
-    })),
-}));
+export const useInvoiceStore =
+  create<InvoiceStore>((set) => ({
+    invoices: initialInvoices,
+
+    addInvoice: (invoice) =>
+      set((state) => ({
+        invoices: [...state.invoices, invoice],
+      })),
+
+    updateInvoice: (id, updated) =>
+      set((state) => ({
+        invoices: state.invoices.map((invoice) =>
+          invoice.invoice_id === id
+            ? { ...invoice, ...updated }
+            : invoice
+        ),
+      })),
+
+    deleteInvoice: (id) =>
+      set((state) => ({
+        invoices: state.invoices.filter(
+          (invoice) =>
+            invoice.invoice_id !== id
+        ),
+      })),
+  }));

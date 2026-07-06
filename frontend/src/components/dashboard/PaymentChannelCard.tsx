@@ -12,6 +12,18 @@ import {
   import { paymentChannelData } from "../../mock/dashboardMock";
   
   export default function PaymentChannelCard() {
+    const digitalChannelRate = paymentChannelData
+      .filter((item) => item.label !== "Store")
+      .reduce(
+        (total, item) => total + item.percentage,
+        0
+      );
+  
+    const physicalChannelRate =
+      paymentChannelData.find(
+        (item) => item.label === "Store"
+      )?.percentage ?? 0;
+  
     return (
       <section className="analytics-card payment-channel-card">
         <div className="chart-card-header">
@@ -101,18 +113,18 @@ import {
         </div>
   
         <div className="channel-summary">
-          <div>
-            <span>Digital Channels</span>
-            <strong>60%</strong>
-            <p>Mobile App + Web</p>
-          </div>
-  
-          <div>
-            <span>Traditional Channels</span>
-            <strong>40%</strong>
-            <p>Bank App + Store</p>
-          </div>
-        </div>
+  <div>
+    <span>Digital Channels</span>
+    <strong>{digitalChannelRate}%</strong>
+    <p>Bank App + Piacell App + Auto Payment</p>
+  </div>
+
+  <div>
+    <span>Physical Channel</span>
+    <strong>{physicalChannelRate}%</strong>
+    <p>Store payments</p>
+  </div>
+</div>
       </section>
     );
   }
