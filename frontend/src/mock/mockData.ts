@@ -1,20 +1,20 @@
 import type { Customer, Invoice, InvoiceStatus, UsageAnomalyLevel, AgeGroup } from "../types/entities";
 
-// --- Sabit veri kaynakları (rastgele seçim için) ---
+// --- Static data sources (for random selection) ---
 const PACKAGES = [
   { name: "Red 20", data: 20, fee: 350 },
   { name: "Platinum Mega", data: 50, fee: 600 },
-  { name: "Turbo Kurumsal", data: 50, fee: 600 },
+  { name: "Turbo Corporate", data: 50, fee: 600 },
 ];
 
 const COMPANIES = [
-  "PiA Holding", "X Yazılım", "Deniz Lojistik", "Kaya İnşaat", "Nova Teknoloji",
-  "Mavi Tekstil", "Anka Enerji", "Berk Otomotiv", "Sude Gıda", "Vera Sağlık",
+  "PiA Holding", "X Software", "Deniz Logistics", "Kaya Construction", "Nova Technology",
+  "Mavi Textile", "Anka Energy", "Berk Automotive", "Sude Food", "Vera Health",
 ];
 
 const PAYMENT_CHANNELS = ["Mobile_App", "Web", "Bank_App", "Store"] as const;
 
-// --- Yardımcı fonksiyonlar ---
+// --- Helper functions ---
 function randomFrom<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
@@ -22,14 +22,14 @@ function randomFrom<T>(arr: T[]): T {
 function calcAgeGroup(birthDate: string): AgeGroup {
   const year = parseInt(birthDate.split("-")[0], 10);
   const age = 2026 - year;
-  if (age <= 30) return "Genç (18-30)";
-  if (age <= 50) return "Orta Yaş (31-50)";
-  return "Kıdemli (51+)";
+  if (age <= 30) return "Young (18-30)";
+  if (age <= 50) return "Middle Age (31-50)";
+  return "Senior (51+)";
 }
 
-// --- CUSTOMER üretici ---
+// --- CUSTOMER generator ---
 export function generateMockCustomer(index: number): Customer {
-  const isCorporate = Math.random() < 0.2; // %20 kurumsal
+  const isCorporate = Math.random() < 0.2; // 20% corporate
   const pkg = randomFrom(PACKAGES);
   const birthYear = 1950 + Math.floor(Math.random() * 55);
   const birth_date = `${birthYear}-0${1 + Math.floor(Math.random() * 8)}-15`;
@@ -39,7 +39,7 @@ export function generateMockCustomer(index: number): Customer {
 
   return {
     customer_id: `CUST-${1000 + index}`,
-    customer_name: `Müşteri ${index}`,
+    customer_name: `Customer ${index}`,
     customer_type: isCorporate ? "Corporate" : "Individual",
     company_name: isCorporate ? randomFrom(COMPANIES) : null,
     birth_date,
@@ -60,11 +60,11 @@ export function generateMockCustomer(index: number): Customer {
   };
 }
 
-// --- INVOICE üretici (docx'te yoktu, ihtiyaç için eklendi) ---
+// --- INVOICE generator (was not in the docx, added as needed) ---
 export function generateMockInvoice(customer: Customer, billingPeriod: string, index: number): Invoice {
   const actual_used_data = Math.round(customer.allocated_data_gb * (0.5 + Math.random() * 1.2));
   const overage_gb = Math.max(0, actual_used_data - customer.allocated_data_gb);
-  const overage_charge = overage_gb * 10; // birim fiyat: 10 TL/GB varsayımı
+  const overage_charge = overage_gb * 10; // unit price: 10 TL/GB assumption
   const telsiz_kullanim_ucreti = 35;
   const total_amount = customer.monthly_fee + overage_charge + telsiz_kullanim_ucreti;
 
@@ -91,7 +91,7 @@ export function generateMockInvoice(customer: Customer, billingPeriod: string, i
     customer_id: customer.customer_id,
     billing_period: billingPeriod,
     actual_used_data,
-    telsiz_kullanim_ucreti,
+    wireless_usage_fee: telsiz_kullanim_ucreti,
     overage_charge,
     total_amount,
     due_date,

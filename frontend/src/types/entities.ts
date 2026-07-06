@@ -1,9 +1,9 @@
 // ============================================================================
 // CUSTOMER INVOICE MANAGEMENT & ANALYZE APPLICATION
-// Frontend Entity / Type Tanımları
+// Frontend Entity / Type Definitions
 // ============================================================================
 
-// 1. ENUM / UNION TİPLER
+// 1. ENUM / UNION TYPES
 export type CustomerType = "Individual" | "Corporate";
 
 export type PaymentChannel = "Mobile_App" | "Web" | "Bank_App" | "Store" | null;
@@ -20,7 +20,7 @@ export type ChurnRiskLevel = "Low" | "Medium" | "High";
 
 export type UsageAnomalyLevel = "Normal" | "SustainableOverage" | "ShockAnomaly";
 
-export type AgeGroup = "Genç (18-30)" | "Orta Yaş (31-50)" | "Kıdemli (51+)";
+export type AgeGroup = "Young (18-30)" | "Middle Age (31-50)" | "Senior (51+)";
 
 // 2. CORE ENTITY: CUSTOMER
 export interface Customer {
@@ -52,7 +52,7 @@ export interface Invoice {
   customer_id: string;
   billing_period: string;
   actual_used_data: number;
-  telsiz_kullanim_ucreti: number;
+  wireless_usage_fee: number;
   overage_charge: number;
   total_amount: number;
   due_date: string;
@@ -68,7 +68,7 @@ export interface Invoice {
   requires_admin_approval: boolean;
 }
 
-// 4. TÜRETİLMİŞ ENTITY: CORPORATE ACCOUNT
+// 4. DERIVED ENTITY: CORPORATE ACCOUNT
 export interface CorporateAccountSummary {
   company_name: string;
   employee_count: number;
