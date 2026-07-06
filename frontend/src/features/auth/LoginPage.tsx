@@ -1,7 +1,49 @@
 import { useState, type FormEvent } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import {
+  Navigate,
+  useNavigate,
+} from "react-router-dom";
+
 import { useAuthStore } from "./authStore";
-import type { LoginType, UserRole } from "./authTypes";
+
+import type {
+  LoginType,
+  UserRole,
+} from "./authTypes";
+
+const TABS: {
+  key: LoginType;
+  label: string;
+  idLabel: string;
+  idPlaceholder: string;
+  maxLength: number;
+  numericOnly: boolean;
+}[] = [
+  {
+    key: "INDIVIDUAL",
+    label: "Customer",
+    idLabel: "Turkish ID Number",
+    idPlaceholder: "11-digit ID number",
+    maxLength: 11,
+    numericOnly: true,
+  },
+  {
+    key: "CORPORATE",
+    label: "Corporate",
+    idLabel: "Tax Identification Number",
+    idPlaceholder: "10-digit tax ID",
+    maxLength: 10,
+    numericOnly: true,
+  },
+  {
+    key: "SYSTEM_ADMIN",
+    label: "System Admin",
+    idLabel: "E-mail Address",
+    idPlaceholder: "admin@example.com",
+    maxLength: 100,
+    numericOnly: false,
+  },
+];
 
 const getHomePath = (role: UserRole) => {
   switch (role) {
@@ -21,120 +63,205 @@ export default function LoginPage() {
 
   const user = useAuthStore((state) => state.user);
   const login = useAuthStore((state) => state.login);
-  const isLoading = useAuthStore((state) => state.isLoading);
+  const isLoading = useAuthStore(
+    (state) => state.isLoading
+  );
   const error = useAuthStore((state) => state.error);
-  const clearError = useAuthStore((state) => state.clearError);
+  const clearError = useAuthStore(
+    (state) => state.clearError
+  );
 
-  const [loginType, setLoginType] =
+  const [activeTab, setActiveTab] =
     useState<LoginType>("INDIVIDUAL");
 
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] =
+    useState(false);
+
+  const tab = TABS.find(
+    (item) => item.key === activeTab
+  )!;
 
   if (user) {
-    return <Navigate to={getHomePath(user.role)} replace />;
+    return (
+      <Navigate
+        to={getHomePath(user.role)}
+        replace
+      />
+    );
   }
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const switchTab = (key: LoginType) => {
+    setActiveTab(key);
+    setIdentifier("");
+    setPassword("");
+    setShowPassword(false);
+    clearError();
+  };
+
+  const handleIdentifierChange = (value: string) => {
+    clearError();
+
+    if (tab.numericOnly) {
+      setIdentifier(
+        value
+          .replace(/\D/g, "")
+          .slice(0, tab.maxLength)
+      );
+
+      return;
+    }
+
+    setIdentifier(value.slice(0, tab.maxLength));
+  };
+
+  const handleSubmit = async (
+    event: FormEvent<HTMLFormElement>
+  ) => {
     event.preventDefault();
 
     try {
       const loggedInUser = await login({
-        loginType,
+        loginType: activeTab,
         identifier,
         password,
       });
 
-      navigate(getHomePath(loggedInUser.role), {
-        replace: true,
-      });
+      navigate(
+        getHomePath(loggedInUser.role),
+        {
+          replace: true,
+        }
+      );
     } catch {
-      
+      // Hata mesajını authStore yönetiyor.
     }
-  };
-
-  const getIdentifierLabel = () => {
-    if (loginType === "INDIVIDUAL") {
-      return "T.C. Kimlik Numarası";
-    }
-
-    if (loginType === "CORPORATE") {
-      return "Vergi Kimlik Numarası";
-    }
-
-    return "E-posta";
   };
 
   return (
-    <div>
-      <h1>Giriş Yap</h1>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-6">
+          <h1 className="text-3xl font-bold text-gray-800">
+            Invoice Management System
+          </h1>
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="loginType">Giriş tipi</label>
+          <p className="text-sm text-gray-500 mt-1">
+            Sign in to your account
+          </p>
+        </div>
 
-          <select
-            id="loginType"
-            value={loginType}
-            onChange={(event) => {
-              setLoginType(event.target.value as LoginType);
-              setIdentifier("");
-              clearError();
-            }}
+        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+          <div className="flex border-b">
+            {TABS.map((item) => (
+              <button
+                key={item.key}
+                type="button"
+                onClick={() => switchTab(item.key)}
+                className={`flex-1 py-3 text-sm font-medium transition-colors ${
+                  activeTab === item.key
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+
+          <form
+            onSubmit={handleSubmit}
+            className="p-8 flex flex-col gap-4"
           >
-            <option value="INDIVIDUAL">Bireysel</option>
-            <option value="CORPORATE">Kurumsal</option>
-            <option value="SYSTEM_ADMIN">Sistem Admin</option>
-          </select>
+            <label className="flex flex-col text-sm gap-1">
+              <span className="font-medium text-gray-700">
+                {tab.idLabel}
+              </span>
+
+              <input
+                className="border border-gray-300 p-2.5 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                type={
+                  activeTab === "SYSTEM_ADMIN"
+                    ? "email"
+                    : "text"
+                }
+                inputMode={
+                  tab.numericOnly
+                    ? "numeric"
+                    : "email"
+                }
+                maxLength={tab.maxLength}
+                value={identifier}
+                onChange={(event) =>
+                  handleIdentifierChange(
+                    event.target.value
+                  )
+                }
+                placeholder={tab.idPlaceholder}
+                required
+              />
+            </label>
+
+            <label className="flex flex-col text-sm gap-1">
+              <span className="font-medium text-gray-700">
+                Password
+              </span>
+
+              <div className="relative">
+                <input
+                  className="border border-gray-300 p-2.5 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  type={
+                    showPassword
+                      ? "text"
+                      : "password"
+                  }
+                  value={password}
+                  onChange={(event) => {
+                    setPassword(event.target.value);
+                    clearError();
+                  }}
+                  placeholder="Enter your password"
+                  required
+                />
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setShowPassword(
+                      (current) => !current
+                    )
+                  }
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-gray-500 hover:text-gray-700"
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </button>
+              </div>
+            </label>
+
+            {error && (
+              <p className="text-sm text-red-600">
+                {error}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="bg-blue-600 text-white py-2.5 rounded font-medium hover:bg-blue-700 transition-colors mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {isLoading
+                ? "Signing in..."
+                : "Sign In"}
+            </button>
+
+            <p className="text-xs text-gray-400 text-center">
+              Forgot your password? Contact your
+              system administrator.
+            </p>
+          </form>
         </div>
-
-        <div>
-          <label htmlFor="identifier">
-            {getIdentifierLabel()}
-          </label>
-
-          <input
-            id="identifier"
-            type={
-              loginType === "SYSTEM_ADMIN"
-                ? "email"
-                : "text"
-            }
-            inputMode={
-              loginType === "SYSTEM_ADMIN"
-                ? undefined
-                : "numeric"
-            }
-            value={identifier}
-            onChange={(event) => {
-              setIdentifier(event.target.value);
-              clearError();
-            }}
-            required
-          />
-        </div>
-
-        <div>
-          <label htmlFor="password">Şifre</label>
-
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(event) => {
-              setPassword(event.target.value);
-              clearError();
-            }}
-            required
-          />
-        </div>
-
-        {error && <p>{error}</p>}
-
-        <button type="submit" disabled={isLoading}>
-          {isLoading ? "Giriş yapılıyor..." : "Giriş Yap"}
-        </button>
-      </form>
+      </div>
     </div>
   );
 }
