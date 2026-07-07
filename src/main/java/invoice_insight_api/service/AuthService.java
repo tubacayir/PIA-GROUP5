@@ -4,7 +4,7 @@ import invoice_insight_api.dto.LoginRequest;
 import invoice_insight_api.dto.LoginResponse;
 import invoice_insight_api.enums.Status;
 import invoice_insight_api.exception.InvalidCredentialsException;
-import invoice_insight_api.model.Customers;
+import invoice_insight_api.model.Customer;
 import invoice_insight_api.repository.CustomerRepository;
 import invoice_insight_api.security.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class AuthService {
     private final JwtService jwtService;
 
     public LoginResponse login(LoginRequest request) {
-        Customers customers = customerRepository.findByTcIdentityNumber(request.tcIdentityNumber())
+        Customer customers = customerRepository.findByTcIdentityNumber(request.tcIdentityNumber())
                 .orElseThrow(() -> new InvalidCredentialsException(INVALID_CREDENTIALS_MESSAGE));
 
         if (customers.getStatus() != Status.ACTIVE) {

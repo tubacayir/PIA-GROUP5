@@ -110,3 +110,58 @@ export function getApiErrorMessage(
 }
 
 export default api;
+
+// ── Types ────────────────────────────────────────────────────────────────────
+
+export interface InvoiceSummary {
+  id: number;
+  invoiceNumber: string;
+  invoiceMonth: number;
+  invoiceYear: number;
+  issueDate: string;
+  dueDate: string;
+  totalAmount: number;
+  status: string;
+}
+
+export interface InvoiceLine {
+  lineType: string;
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  amount: number;
+}
+
+export interface InvoiceDetail extends InvoiceSummary {
+  subscriptionNumber: string;
+  phoneNumber: string;
+  packageName: string;
+  lines: InvoiceLine[];
+}
+
+export interface Employee {
+  id: number;
+  tcIdentityNumber: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  city: string;
+  status: string;
+}
+
+// ── Customer invoice endpoints ────────────────────────────────────────────────
+
+export const getMyInvoices = (): Promise<InvoiceSummary[]> =>
+  api.get<InvoiceSummary[]>("/invoices").then((r) => r.data);
+
+export const getInvoiceDetail = (id: number): Promise<InvoiceDetail> =>
+  api.get<InvoiceDetail>(`/invoices/${id}`).then((r) => r.data);
+
+// ── Corporate endpoints ───────────────────────────────────────────────────────
+
+export const getCorporateEmployees = (): Promise<Employee[]> =>
+  api.get<Employee[]>("/corporate/employees").then((r) => r.data);
+
+export const getCorporateInvoices = (): Promise<InvoiceSummary[]> =>
+  api.get<InvoiceSummary[]>("/corporate/invoices").then((r) => r.data);

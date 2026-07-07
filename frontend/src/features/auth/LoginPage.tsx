@@ -72,10 +72,10 @@ const getHomePath = (role: UserRole) => {
       return "/dashboard";
 
     case "ORGANIZATION_ADMIN":
-      return "/organization/dashboard";
+      return "/corporate/employees";
 
     case "CUSTOMER":
-      return "/customer/profile";
+      return "/customer/invoices";
   }
 };
 

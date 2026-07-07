@@ -14,6 +14,9 @@ import CustomerDetailPage from "./pages/CustomerDetailPage";
 import InvoiceListPage from "./pages/InvoiceListPage";
 import CustomerProfilePage from "./pages/CustomerProfilePage";
 import OrganizationDashboardPage from "./pages/OrganizationDashboardPage";
+import CustomerInvoicesPage from "./pages/CustomerInvoicesPage";
+import CustomerInvoiceDetailPage from "./pages/CustomerInvoiceDetailPage";
+import CorporateEmployeesPage from "./pages/CorporateEmployeesPage";
 
 import LoginPage from "./features/auth/LoginPage";
 import ProtectedRoute from "./features/auth/ProtectedRoute";
@@ -107,10 +110,8 @@ function App() {
               />
             }
           >
-            <Route
-  path="/organization/dashboard"
-  element={<OrganizationDashboardPage />}
-/>
+            <Route path="/organization/dashboard" element={<OrganizationDashboardPage />} />
+            <Route path="/corporate/employees" element={<CorporateEmployeesPage />} />
           </Route>
 
           {/* Customer */}
@@ -119,10 +120,9 @@ function App() {
               <RoleRoute allowedRoles={["CUSTOMER"]} />
             }
           >
-            <Route
-  path="/customer/profile"
-  element={<CustomerProfilePage />}
-/>
+            <Route path="/customer/profile" element={<CustomerProfilePage />} />
+            <Route path="/customer/invoices" element={<CustomerInvoicesPage />} />
+            <Route path="/customer/invoices/:id" element={<CustomerInvoiceDetailPage />} />
           </Route>
         </Route>
 

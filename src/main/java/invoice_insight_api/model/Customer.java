@@ -49,6 +49,9 @@ public class Customer {
     @Column(nullable = false, length = 50)
     private String city;
 
+    @Column(nullable = false)
+    private String password;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private Status status;

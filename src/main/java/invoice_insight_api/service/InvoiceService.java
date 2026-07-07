@@ -23,7 +23,7 @@ public class InvoiceService {
     private final InvoiceLineRepository invoiceLineRepository;
 
     public List<InvoiceSummaryResponse> getInvoicesForCustomer(Long customerId) {
-        return invoiceRepository.findBySubscription_Customers_IdOrderByIssueDateDesc(customerId).stream()
+        return invoiceRepository.findBySubscription_Customer_IdOrderByIssueDateDesc(customerId).stream()
                 .map(this::toSummary)
                 .toList();
     }
@@ -35,7 +35,7 @@ public class InvoiceService {
     }
 
     public InvoiceDetailResponse getInvoiceDetail(Long customerId, Long invoiceId) {
-        Invoice invoice = invoiceRepository.findByIdAndSubscription_Customers_Id(invoiceId, customerId)
+        Invoice invoice = invoiceRepository.findByIdAndSubscription_Customer_Id(invoiceId, customerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Fatura bulunamadı"));
 
         List<InvoiceLineResponse> lines = invoiceLineRepository.findByInvoice_Id(invoice.getId()).stream()

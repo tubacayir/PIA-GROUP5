@@ -2,7 +2,7 @@ package invoice_insight_api.service;
 
 import invoice_insight_api.dto.EmployeeResponse;
 import invoice_insight_api.dto.InvoiceSummaryResponse;
-import invoice_insight_api.model.Customers;
+import invoice_insight_api.model.Customer;
 import invoice_insight_api.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,7 +28,7 @@ public class CorporateService {
         return invoiceService.getInvoicesForOrganization(organizationId);
     }
 
-    private EmployeeResponse toEmployeeResponse(Customers customer) {
+    private EmployeeResponse toEmployeeResponse(Customer customer) {
         return new EmployeeResponse(
                 customer.getId(),
                 customer.getTcIdentityNumber(),

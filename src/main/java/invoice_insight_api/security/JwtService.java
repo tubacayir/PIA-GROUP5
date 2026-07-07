@@ -1,6 +1,6 @@
 package invoice_insight_api.security;
 
-import invoice_insight_api.model.Customers;
+import invoice_insight_api.model.Customer;
 import invoice_insight_api.model.Organization;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -28,7 +28,7 @@ public class JwtService {
         this.expirationMs = expirationMs;
     }
 
-    public String generateToken(Customers customers) {
+    public String generateToken(Customer customers) {
         return buildToken(customers.getId().toString(), CUSTOMER_ROLE);
     }
 

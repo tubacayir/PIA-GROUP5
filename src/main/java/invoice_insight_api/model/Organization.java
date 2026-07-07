@@ -19,9 +19,12 @@ public class Organization {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(unique = true,name = "taxIdentity_number", nullable = false,length = 10)
-    private String axIdentityNumber;
+    private String taxIdentityNumber;
     @Column(name = "name")
     private String name;
+
+    @Column(nullable = false)
+    private String password;
 
     @Column(name = "sector")
     private String sector;
