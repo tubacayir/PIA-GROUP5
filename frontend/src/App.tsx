@@ -7,13 +7,22 @@ import {
 } from "react-router-dom";
 
 import Sidebar from "./components/layout/Sidebar";
+import OrganizationLayout from "./components/layout/OrganizationLayout";
 
 import DashboardPage from "./pages/DashboardPage";
 import CustomerListPage from "./pages/CustomerListPage";
 import CustomerDetailPage from "./pages/CustomerDetailPage";
 import InvoiceListPage from "./pages/InvoiceListPage";
 import CustomerProfilePage from "./pages/CustomerProfilePage";
-import OrganizationDashboardPage from "./pages/OrganizationDashboardPage";
+
+import OrganizationDashboardPage from "./pages/organization/OrganizationDashboardPage";
+import EmployeeListPage from "./pages/organization/EmployeeListPage";
+import EmployeeDetailPage from "./pages/organization/EmployeeDetailPage";
+import SubscriptionListPage from "./pages/organization/SubscriptionListPage";
+import SubscriptionDetailPage from "./pages/organization/SubscriptionDetailPage";
+import UsageAnalyticsPage from "./pages/organization/UsageAnalyticsPage";
+import OrganizationInvoiceListPage from "./pages/organization/InvoiceListPage";
+import OrganizationInvoiceDetailPage from "./pages/organization/InvoiceDetailPage";
 
 import LoginPage from "./features/auth/LoginPage";
 import ProtectedRoute from "./features/auth/ProtectedRoute";
@@ -107,10 +116,47 @@ function App() {
               />
             }
           >
-            <Route
-  path="/organization/dashboard"
-  element={<OrganizationDashboardPage />}
-/>
+            <Route element={<OrganizationLayout />}>
+              <Route
+                path="/organization/dashboard"
+                element={<OrganizationDashboardPage />}
+              />
+
+              <Route
+                path="/organization/employees"
+                element={<EmployeeListPage />}
+              />
+
+              <Route
+                path="/organization/employees/:id"
+                element={<EmployeeDetailPage />}
+              />
+
+              <Route
+                path="/organization/subscriptions"
+                element={<SubscriptionListPage />}
+              />
+
+              <Route
+                path="/organization/subscriptions/:id"
+                element={<SubscriptionDetailPage />}
+              />
+
+              <Route
+                path="/organization/usage-analytics"
+                element={<UsageAnalyticsPage />}
+              />
+
+              <Route
+                path="/organization/invoices"
+                element={<OrganizationInvoiceListPage />}
+              />
+
+              <Route
+                path="/organization/invoices/:id"
+                element={<OrganizationInvoiceDetailPage />}
+              />
+            </Route>
           </Route>
 
           {/* Customer */}

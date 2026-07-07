@@ -6,12 +6,8 @@ interface ApiErrorResponse {
 }
 
 const api = axios.create({
-  baseURL:
-    import.meta.env.VITE_API_BASE_URL ||
-    "http://localhost:8080/api",
-
+  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api",
   timeout: 15_000,
-
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
@@ -20,17 +16,14 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const accessToken =
-      localStorage.getItem("accessToken");
+    const accessToken = localStorage.getItem("accessToken");
 
     if (accessToken) {
-      config.headers.Authorization =
-        `Bearer ${accessToken}`;
+      config.headers.Authorization = `Bearer ${accessToken}`;
     }
 
     return config;
   },
-
   (error) => {
     return Promise.reject(error);
   }
@@ -38,7 +31,6 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   (response) => response,
-
   (error) => {
     if (
       axios.isAxiosError(error) &&
@@ -59,9 +51,7 @@ export function getApiErrorMessage(
   error: unknown,
   fallbackMessage = "An unexpected error occurred."
 ) {
-  if (
-    axios.isAxiosError<ApiErrorResponse>(error)
-  ) {
+  if (axios.isAxiosError<ApiErrorResponse>(error)) {
     if (error.code === "ECONNABORTED") {
       return "The request timed out. Please try again.";
     }
@@ -71,8 +61,7 @@ export function getApiErrorMessage(
     }
 
     const backendMessage =
-      error.response.data?.message ??
-      error.response.data?.error;
+      error.response.data?.message ?? error.response.data?.error;
 
     if (backendMessage) {
       return backendMessage;
@@ -81,22 +70,16 @@ export function getApiErrorMessage(
     switch (error.response.status) {
       case 400:
         return "The request is invalid.";
-
       case 401:
         return "Your credentials are incorrect.";
-
       case 403:
         return "You do not have permission to perform this action.";
-
       case 404:
         return "The requested resource could not be found.";
-
       case 409:
         return "This operation conflicts with existing data.";
-
       case 500:
         return "A server error occurred. Please try again later.";
-
       default:
         return fallbackMessage;
     }

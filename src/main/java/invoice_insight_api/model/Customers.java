@@ -16,16 +16,14 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Customer {
+public class Customers {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
      @Column(name="tc",nullable = false,unique = true, length = 11)
     private String tcIdentityNumber;
-
-    @Column(name = "customer_number", nullable = false, unique = true, length = 20)
-    private String customerNumber;
 
     @Column(name = "first_name", nullable = false, length = 50)
     private String firstName;
@@ -38,6 +36,9 @@ public class Customer {
 
     @Column(name = "phone_number", nullable = false, unique = true, length = 20)
     private String phoneNumber;
+
+    @Column(name = "password", nullable = false, length = 255)
+    private String password;
 
     @Column(name = "birth_date", nullable = false)
     private LocalDate birthDate;
@@ -58,7 +59,6 @@ public class Customer {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
 
 }
 
