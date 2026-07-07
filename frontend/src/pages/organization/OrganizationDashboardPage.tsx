@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import {
   Activity,
   CircleAlert,
@@ -39,7 +40,7 @@ function ChartCard({
 }: {
   title: string;
   subtitle: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
