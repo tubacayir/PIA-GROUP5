@@ -12,7 +12,7 @@ const TABS: {
   numericOnly: boolean;
 }[] = [
   {
-    key: "customer",
+    key: "Customer",
     label: "Customer",
     idLabel: "Turkish ID Number",
     idPlaceholder: "11-digit ID number",
@@ -20,7 +20,7 @@ const TABS: {
     numericOnly: true,
   },
   {
-    key: "corporate",
+    key: "OrganizationAdmin",
     label: "Corporate",
     idLabel: "Tax Identification Number",
     idPlaceholder: "10-digit tax ID",
@@ -28,7 +28,7 @@ const TABS: {
     numericOnly: true,
   },
   {
-    key: "admin",
+    key: "SystemAdmin",
     label: "System Admin",
     idLabel: "E-mail Address",
     idPlaceholder: "admin@example.com",
@@ -41,7 +41,7 @@ export default function LoginPage() {
   const login = useAuthStore((state) => state.login);
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState<LoginType>("customer");
+  const [activeTab, setActiveTab] = useState<LoginType>("Customer");
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -107,7 +107,7 @@ export default function LoginPage() {
               <span className="font-medium text-gray-700">{tab.idLabel}</span>
               <input
                 className="border border-gray-300 p-2.5 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                type={activeTab === "admin" ? "email" : "text"}
+                type={activeTab === "SystemAdmin" ? "email" : "text"}
                 inputMode={tab.numericOnly ? "numeric" : "email"}
                 value={identifier}
                 onChange={(e) => handleIdentifierChange(e.target.value)}

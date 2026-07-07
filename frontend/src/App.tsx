@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import NavBar from "./components/layout/NavBar";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
 import LoginPage from "./pages/LoginPage";
@@ -15,7 +15,10 @@ function App() {
     <BrowserRouter>
       {isLoggedIn && <NavBar />}
       <Routes>
-        <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/login"
+          element={isLoggedIn ? <Navigate to="/" replace /> : <LoginPage />}
+        />
         <Route
           path="/"
           element={

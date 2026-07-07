@@ -1,6 +1,8 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import type { UserRole } from "../types/entities";
 
-export type LoginType = "customer" | "corporate" | "admin";
+export type LoginType = UserRole;
 
 interface AuthStore {
   isLoggedIn: boolean;
@@ -10,9 +12,14 @@ interface AuthStore {
   logout: () => void;
 }
 
-export const useAuthStore = create<AuthStore>((set) => ({
-  isLoggedIn: false,
-  loginType: null,
-  login: (type) => set({ isLoggedIn: true, loginType: type }),
-  logout: () => set({ isLoggedIn: false, loginType: null }),
-}));
+export const useAuthStore = create<AuthStore>()(
+  persist(
+    (set) => ({
+      isLoggedIn: false,
+      loginType: null,
+      login: (type) => set({ isLoggedIn: true, loginType: type }),
+      logout: () => set({ isLoggedIn: false, loginType: null }),
+    }),
+    { name: "auth-storage" }
+  )
+);
