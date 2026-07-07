@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import api from "../services/api";
+import api from "../services/api.ts";
 import { useAuthStore, type LoginType } from "../store/authStore";
 
 interface LoginResponse {

@@ -15,4 +15,8 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
     Optional<Invoice> findByIdAndSubscription_Customers_Id(Long id, Long customerId);
 
     List<Invoice> findBySubscription_Organization_IdOrderByIssueDateDesc(Long organizationId);
+
+    Optional<Invoice> findByIdAndSubscription_Organization_Id(Long id, Long organizationId);
+
+    List<Invoice> findBySubscription_IdOrderByIssueDateDesc(Long subscriptionId);
 }

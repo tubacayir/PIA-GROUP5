@@ -29,6 +29,6 @@ public class AuthController {
 
     @PostMapping("/corporate-login")
     public ResponseEntity<CorporateLoginResponse> corporateLogin(@Valid @RequestBody CorporateLoginRequest request) {
-        return ResponseEntity.ok(corporateAuthService.login(request));
+       return ResponseEntity.ok(corporateAuthService.login(request));
     }
 }
