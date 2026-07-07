@@ -1,51 +1,91 @@
-const paymentStatusData = [
-    {
-      label: "Paid",
-      amount: "₺3.91M",
-      percentage: 81,
-    },
-    {
-      label: "Pending",
-      amount: "₺620K",
-      percentage: 13,
-    },
-    {
-      label: "Overdue",
-      amount: "₺290K",
-      percentage: 6,
-    },
-  ];
+import {
+    Cell,
+    Pie,
+    PieChart,
+    ResponsiveContainer,
+  } from "recharts";
+
+  
+  import { paymentStatusChartData } from "../../mock/dashboardMock";
   
   export default function PaymentStatusCard() {
+    const totalInvoices = paymentStatusChartData.reduce(
+      (total, item) => total + item.value,
+      0
+    );
+  
     return (
-      <section className="analytics-card">
-        <div className="analytics-card-header">
+      <section className="analytics-card payment-health-card">
+        <div className="chart-card-header">
           <div>
+            <p className="chart-card-eyebrow">Collection Health</p>
             <h2>Payment Status</h2>
-            <p>Distribution of invoice amounts</p>
+            <p>Invoice payment behavior distribution</p>
           </div>
         </div>
   
-        <div className="payment-status-list">
-          {paymentStatusData.map((item) => (
-            <div className="payment-status-item" key={item.label}>
-              <div className="payment-status-row">
-                <span>{item.label}</span>
+        <div className="payment-health-content">
+          <div className="payment-donut-wrapper">
+            <ResponsiveContainer width="100%" height="100%">
+            <PieChart accessibilityLayer={false}>
+                <Pie
+                  data={paymentStatusChartData}
+                  dataKey="value"
+                  nameKey="name"
+                  rootTabIndex={-1}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={72}
+                  outerRadius={98}
+                  paddingAngle={3}
+                  stroke="none"
+                >
+                  {paymentStatusChartData.map((item) => (
+                    <Cell
+                      key={item.name}
+                      fill={item.color}
+                    />
+                  ))}
+                </Pie>
   
-                <div className="payment-status-values">
-                  <strong>{item.amount}</strong>
-                  <span>{item.percentage}%</span>
-                </div>
-              </div>
+                
+              </PieChart>
+            </ResponsiveContainer>
   
-              <div className="progress-track">
-                <div
-                  className={`progress-fill progress-${item.label.toLowerCase()}`}
-                  style={{ width: `${item.percentage}%` }}
-                />
-              </div>
+            <div className="payment-donut-center">
+            <strong>
+  {totalInvoices.toLocaleString("en-US")}
+</strong>
+              <span>Invoices</span>
             </div>
-          ))}
+          </div>
+  
+          <div className="payment-health-legend">
+            {paymentStatusChartData.map((item) => (
+              <div
+                className="payment-health-row"
+                key={item.name}
+              >
+                <div className="payment-health-label">
+                  <span
+                    className="payment-health-dot"
+                    style={{ backgroundColor: item.color }}
+                  />
+  
+                  <div>
+                    <strong>{item.name}</strong>
+                    <span>
+                      {item.value.toLocaleString("en-US")} invoices
+                    </span>
+                  </div>
+                </div>
+  
+                <strong className="payment-health-percentage">
+                  {item.percentage}%
+                </strong>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
     );
