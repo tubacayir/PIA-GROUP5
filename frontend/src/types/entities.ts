@@ -6,7 +6,13 @@
 // 1. ENUM / UNION TYPES
 export type CustomerType = "Individual" | "Corporate";
 
-export type PaymentChannel = "Mobile_App" | "Web" | "Bank_App" | "Store" | null;
+export type PaymentChannel =
+  | "Mobile_App"
+  | "Web"
+  | "Bank_App"
+  | "Store"
+  | "Auto_Payment"
+  | null;
 
 export type DeliveryMethod = "Digital" | "Paper";
 
@@ -115,4 +121,17 @@ export interface ChurnRiskListItem {
 export interface CorporateVsIndividualDelayKPI {
   customer_type: CustomerType;
   average_delay_days: number;
+}
+// 6. AUTH / USER
+export type UserRole = "SystemAdmin" | "OrganizationAdmin" | "Customer";
+
+export interface AppUser {
+  tc_no: string;
+  full_name: string;
+  role: UserRole;
+  // SystemAdmin: null (not tied to any customer or organization)
+  // OrganizationAdmin: tied to a company via organization_name
+  // Customer: tied to a single customer record via customer_id
+  customer_id: string | null;
+  organization_name: string | null;
 }
