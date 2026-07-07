@@ -1,11 +1,9 @@
 import type { Customer, Invoice, InvoiceStatus, UsageAnomalyLevel, AgeGroup } from "../types/entities";
+import {
+  corporatePackages,
+  individualPackages,
+} from "./packageCatalog";
 
-// --- Static data sources (for random selection) ---
-const PACKAGES = [
-  { name: "Red 20", data: 20, fee: 350 },
-  { name: "Platinum Mega", data: 50, fee: 600 },
-  { name: "Turbo Corporate", data: 50, fee: 600 },
-];
 
 const COMPANIES = [
   "PiA Holding", "X Software", "Deniz Logistics", "Kaya Construction", "Nova Technology",
@@ -30,7 +28,11 @@ function calcAgeGroup(birthDate: string): AgeGroup {
 // --- CUSTOMER generator ---
 export function generateMockCustomer(index: number): Customer {
   const isCorporate = Math.random() < 0.2; // 20% corporate
-  const pkg = randomFrom(PACKAGES);
+  const availablePackages = isCorporate
+  ? corporatePackages
+  : individualPackages;
+
+const pkg = randomFrom(availablePackages);
   const birthYear = 1950 + Math.floor(Math.random() * 55);
   const birth_date = `${birthYear}-0${1 + Math.floor(Math.random() * 8)}-15`;
   const regYear = 2018 + Math.floor(Math.random() * 8);
@@ -45,8 +47,8 @@ export function generateMockCustomer(index: number): Customer {
     birth_date,
     registration_date,
     package_name: pkg.name,
-    allocated_data_gb: pkg.data,
-    monthly_fee: pkg.fee,
+allocated_data_gb: pkg.internetGb,
+monthly_fee: pkg.monthlyPrice,
     contract_end_date: "2027-01-15",
     is_active: true,
     age_group: calcAgeGroup(birth_date),
