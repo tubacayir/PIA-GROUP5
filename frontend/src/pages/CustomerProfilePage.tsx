@@ -1,7 +1,6 @@
 import {
     Activity,
     ArrowRight,
-    CalendarDays,
     CreditCard,
     FileText,
     Gauge,
@@ -164,29 +163,6 @@ import {
       .slice(-8)
       .padStart(8, "0")}`;
     
-    const threeMonthInvoices = invoices.slice(0, 3);
-    
-    const threeMonthInvoiceTotal =
-      threeMonthInvoices.reduce(
-        (sum, invoice) =>
-          sum + invoice.total_amount,
-        0
-      );
-    
-    const threeMonthInvoiceAverage =
-      threeMonthInvoices.length > 0
-        ? threeMonthInvoiceTotal /
-          threeMonthInvoices.length
-        : 0;
-    
-    const highestThreeMonthInvoice =
-      threeMonthInvoices.length > 0
-        ? Math.max(
-            ...threeMonthInvoices.map(
-              (invoice) => invoice.total_amount
-            )
-          )
-        : 0;
     
     const latestInvoice = invoices[0];
     
@@ -494,61 +470,7 @@ const usageChartPercent = Math.min(
           </section>
   
           <section className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
-          <section className="rounded-2xl border border-violet-200 bg-gradient-to-r from-violet-50 via-white to-fuchsia-50 p-6 shadow-sm">
-  <div className="flex flex-col gap-6">
-    <div className="flex items-center gap-4">
-      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-violet-600 text-white shadow-lg shadow-violet-600/20">
-        <CalendarDays className="h-6 w-6" />
-      </div>
-
-      <div>
-        <p className="text-sm font-semibold text-violet-700">
-          3-Month Billing Summary
-        </p>
-
-        <h2 className="mt-1 text-xl font-bold text-slate-950">
-          Your recent invoice overview
-        </h2>
-
-        <p className="mt-1 text-sm text-slate-500">
-          Based on your latest {threeMonthInvoices.length} billing periods.
-        </p>
-      </div>
-    </div>
-
-    <div className="grid gap-3 sm:grid-cols-3">
-      <div className="rounded-2xl border border-violet-100 bg-white p-4 shadow-sm">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-          Monthly Average
-        </p>
-
-        <p className="mt-2 text-xl font-bold text-violet-700">
-          {formatCurrency(threeMonthInvoiceAverage)}
-        </p>
-      </div>
-
-      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-          Highest Invoice
-        </p>
-
-        <p className="mt-2 text-xl font-bold text-slate-950">
-          {formatCurrency(highestThreeMonthInvoice)}
-        </p>
-      </div>
-
-      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-          Billing Periods
-        </p>
-
-        <p className="mt-2 text-xl font-bold text-slate-950">
-          {threeMonthInvoices.length} Months
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
+          
             <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
               <div className="flex items-center justify-between border-b border-slate-200 p-5">
                 <div>
