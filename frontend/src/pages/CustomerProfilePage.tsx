@@ -14,7 +14,7 @@ import {
     UserRound,
   } from "lucide-react";
   import { Link } from "react-router-dom";
-  
+
   import { useAuthStore } from "../features/auth/authStore";
   import { useCustomerStore } from "../store/customerStore";
   import { useInvoiceStore } from "../store/invoiceStore";
