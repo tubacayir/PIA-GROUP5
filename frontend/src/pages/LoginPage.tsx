@@ -1,6 +1,17 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import api from "../services/api.ts";
 import { useAuthStore, type LoginType } from "../store/authStore";
+
+interface LoginResponse {
+  token: string;
+  tokenType: string;
+  customerId: number;
+  customerNumber: string;
+  fullName: string;
+  email: string;
+}
 
 // Tab configuration: label, input field label, placeholder and input rules per login type
 const TABS: {
@@ -45,6 +56,8 @@ export default function LoginPage() {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const tab = TABS.find((t) => t.key === activeTab)!;
 
@@ -54,6 +67,7 @@ export default function LoginPage() {
     setIdentifier("");
     setPassword("");
     setShowPassword(false);
+    setError(null);
   }
 
   function handleIdentifierChange(value: string) {
@@ -64,12 +78,40 @@ export default function LoginPage() {
     }
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // TODO: replace with real backend authentication call.
-    // For now this only marks the user as "logged in" so the app flow can be tested.
-    login(activeTab);
-    navigate("/");
+    setError(null);
+
+    if (activeTab !== "customer") {
+      setError("Bu giriş türü henüz aktif değil.");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const { data } = await api.post<LoginResponse>("/auth/login", {
+        tcIdentityNumber: identifier,
+        password,
+      });
+      login(activeTab, {
+        token: data.token,
+        customer: {
+          customerId: data.customerId,
+          customerNumber: data.customerNumber,
+          fullName: data.fullName,
+          email: data.email,
+        },
+      });
+      navigate("/");
+    } catch (err) {
+      const message =
+        axios.isAxiosError(err) && err.response?.data?.message
+          ? err.response.data.message
+          : "Giriş yapılamadı. Lütfen tekrar deneyin.";
+      setError(message);
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -137,11 +179,18 @@ export default function LoginPage() {
               </div>
             </label>
 
+            {error && (
+              <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded p-2">
+                {error}
+              </p>
+            )}
+
             <button
               type="submit"
-              className="bg-blue-600 text-white py-2.5 rounded font-medium hover:bg-blue-700 transition-colors mt-2"
+              disabled={submitting}
+              className="bg-blue-600 text-white py-2.5 rounded font-medium hover:bg-blue-700 transition-colors mt-2 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Sign In
+              {submitting ? "Signing in..." : "Sign In"}
             </button>
 
             <p className="text-xs text-gray-400 text-center">
