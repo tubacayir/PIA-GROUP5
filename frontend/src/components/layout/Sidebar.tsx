@@ -1,4 +1,5 @@
 import {
+  BarChart3,
   Building2,
   LayoutDashboard,
   LogOut,
@@ -34,6 +35,11 @@ const navigationItems = [
     label: "Invoices",
     path: "/invoices",
     icon: ReceiptText,
+  },
+  {
+    label: "Analytics",
+    path: "/analytics",
+    icon: BarChart3,
   },
   {
     label: "Admins",
