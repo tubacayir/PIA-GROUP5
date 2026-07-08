@@ -32,11 +32,6 @@ const navigationItems = [
     icon: Building2,
   },
   {
-    label: "Invoices",
-    path: "/invoices",
-    icon: ReceiptText,
-  },
-  {
     label: "Analytics",
     path: "/analytics",
     icon: BarChart3,

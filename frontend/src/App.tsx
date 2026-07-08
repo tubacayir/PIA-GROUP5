@@ -16,7 +16,6 @@ import CompanyListPage from "./pages/CompanyListPage";
 import CompanyDetailPage from "./pages/CompanyDetailPage";
 import AdminUsersPage from "./pages/AdminUsersPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
-import InvoiceListPage from "./pages/InvoiceListPage";
 import CustomerProfilePage from "./pages/CustomerProfilePage";
 
 import OrganizationDashboardPage from "./pages/organization/OrganizationDashboardPage";
@@ -118,17 +117,6 @@ function App() {
                 element={<AnalyticsPage />}
               />
 
-              <Route
-                path="/invoices"
-                element={<InvoiceListPage />}
-              />
-
-              <Route
-                path="/faturalar"
-                element={
-                  <Navigate to="/invoices" replace />
-                }
-              />
             </Route>
           </Route>
 

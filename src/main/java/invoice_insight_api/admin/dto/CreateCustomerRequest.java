@@ -39,7 +39,9 @@ public record CreateCustomerRequest(
         @NotBlank(message = "Şehir zorunludur")
         String city,
         @NotNull(message = "Package seçimi zorunludur")
-        Long tariffPackageId
+        Long tariffPackageId,
+
+        Long organizationId
 
 ) {
 }

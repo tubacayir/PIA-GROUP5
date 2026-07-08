@@ -13,7 +13,7 @@ import CustomerFormModal from "../components/admin/CustomerFormModal";
 import StatusBadge from "../components/organization/StatusBadge";
 import { ErrorState, LoadingState } from "../components/organization/AsyncStates";
 import { useAsyncData } from "../features/admin/useAsyncData";
-import { createCustomer, getCustomers, getPackages } from "../features/admin/adminService";
+import { createCustomer, getCustomers, getOrganizations, getPackages } from "../features/admin/adminService";
 import type { CustomerFilters, Gender } from "../features/admin/adminTypes";
 
 const PAGE_SIZE = 10;
@@ -24,6 +24,7 @@ type GenderFilter = "All" | Gender;
 
 export default function CustomerListPage() {
   const { data: packages } = useAsyncData(getPackages, []);
+  const { data: organizations } = useAsyncData(() => getOrganizations(), []);
 
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
@@ -322,6 +323,7 @@ export default function CustomerListPage() {
         <CustomerFormModal
           mode="create"
           packages={packages ?? []}
+          organizations={organizations ?? []}
           onClose={() => setShowCreateModal(false)}
           onSubmit={async (values) => {
             const created = await createCustomer({
@@ -335,6 +337,7 @@ export default function CustomerListPage() {
               gender: values.gender,
               city: values.city,
               tariffPackageId: Number(values.tariffPackageId),
+              organizationId: values.customerType === "Corporate" ? Number(values.organizationId) : undefined,
             });
             setData((current) => (current ? [created, ...current] : [created]));
             setShowCreateModal(false);

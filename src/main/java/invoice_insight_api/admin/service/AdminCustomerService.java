@@ -16,6 +16,7 @@ import invoice_insight_api.shared.exception.DuplicateResourceException;
 import invoice_insight_api.shared.exception.ResourceNotFoundException;
 import invoice_insight_api.shared.model.Customers;
 import invoice_insight_api.shared.model.Invoice;
+import invoice_insight_api.shared.model.Organization;
 import invoice_insight_api.shared.model.Subscription;
 import invoice_insight_api.shared.model.TariffPackage;
 import invoice_insight_api.shared.model.UsageSummary;
@@ -48,6 +49,7 @@ public class AdminCustomerService {
     private final UsageSummaryRepository usageSummaryRepository;
     private final PasswordEncoder passwordEncoder;
     private final TariffPackageRepository tariffPackageRepository;
+    private final OrganizationRepository organizationRepository;
 
 
     public List<AdminCustomerSummaryResponse> getCustomers(String search, String city, Gender gender,
@@ -195,6 +197,8 @@ public class AdminCustomerService {
 
         TariffPackage tariffPackage = tariffPackageRepository.findById(request.tariffPackageId())
                 .orElseThrow(() -> new ResourceNotFoundException("Paket bulunamadı"));
+        Organization organization = request.organizationId() == null ? null : organizationRepository.findById(request.organizationId())
+                .orElseThrow(() -> new ResourceNotFoundException("Organizasyon bulunamadı"));
 
         Customers customer = new Customers();
         customer.setTcIdentityNumber(request.tcIdentityNumber());
@@ -216,8 +220,9 @@ public class AdminCustomerService {
         subscription.setSubscriptionNumber("SUB" + System.currentTimeMillis());
         subscription.setPhoneNumber(request.phoneNumber());
         subscription.setCustomers(saved);
+        subscription.setOrganization(organization);
         subscription.setTariffPackage(tariffPackage);
-        subscription.setSubscriptionType(SubscriptionType.INDIVIDUAL);
+        subscription.setSubscriptionType(organization == null ? SubscriptionType.INDIVIDUAL : SubscriptionType.CORPORATE);
         subscription.setStartDate(LocalDate.now());
         subscription.setStatus(Status.ACTIVE);
         subscription.setCommitmentStartDate(LocalDate.now());
@@ -226,6 +231,11 @@ public class AdminCustomerService {
         subscription.setUpdatedAt(LocalDateTime.now());
 
         Subscription savedSubscription = subscriptionRepository.save(subscription);
+
+        if (organization != null) {
+            organization.setEmployeeCount((organization.getEmployeeCount() == null ? 0 : organization.getEmployeeCount()) + 1);
+            organization.setUpdatedAt(LocalDateTime.now());
+        }
 
         return toSummary(saved, List.of(savedSubscription), LocalDate.now());
     }
