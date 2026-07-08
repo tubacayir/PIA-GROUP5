@@ -321,6 +321,7 @@ export default function CustomerListPage() {
       {showCreateModal && (
         <CustomerFormModal
           mode="create"
+          packages={packages ?? []}
           onClose={() => setShowCreateModal(false)}
           onSubmit={async (values) => {
             const created = await createCustomer({
@@ -333,6 +334,7 @@ export default function CustomerListPage() {
               birthDate: values.birthDate,
               gender: values.gender,
               city: values.city,
+              tariffPackageId: Number(values.tariffPackageId),
             });
             setData((current) => (current ? [created, ...current] : [created]));
             setShowCreateModal(false);

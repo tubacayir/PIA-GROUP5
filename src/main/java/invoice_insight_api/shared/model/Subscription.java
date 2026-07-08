@@ -71,4 +71,5 @@ public class Subscription {
 
     @Column(name = "commitment_end_date")
     private LocalDate commitmentEndDate;
+
 }

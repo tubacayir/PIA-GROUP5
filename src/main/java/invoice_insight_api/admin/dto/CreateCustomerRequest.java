@@ -37,6 +37,9 @@ public record CreateCustomerRequest(
         Gender gender,
 
         @NotBlank(message = "Şehir zorunludur")
-        String city
+        String city,
+        @NotNull(message = "Package seçimi zorunludur")
+        Long tariffPackageId
+
 ) {
 }

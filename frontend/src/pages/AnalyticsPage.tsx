@@ -34,7 +34,7 @@ export default function AnalyticsPage() {
       <div>
         <h1
             style={{
-              color: "#FF",
+              color: "#1f3d5e",
               opacity: 1,
               fontSize: "48px",
               fontWeight: "bold",

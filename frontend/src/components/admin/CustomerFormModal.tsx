@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import Modal from "./Modal";
-import type { AdminCustomerDetail, Gender } from "../../features/admin/adminTypes";
+import type { AdminCustomerDetail, AdminPackageInfo, Gender } from "../../features/admin/adminTypes";
 
 interface CustomerFormValues {
   tcIdentityNumber: string;
@@ -13,11 +13,13 @@ interface CustomerFormValues {
   birthDate: string;
   gender: Gender;
   city: string;
+  tariffPackageId: string;
 }
 
 interface CustomerFormModalProps {
   mode: "create" | "edit";
   initialValues?: AdminCustomerDetail;
+  packages?: AdminPackageInfo[];
   onClose: () => void;
   onSubmit: (values: CustomerFormValues) => Promise<void>;
 }
@@ -32,9 +34,10 @@ const EMPTY_VALUES: CustomerFormValues = {
   birthDate: "",
   gender: "MALE",
   city: "",
+  tariffPackageId: "",
 };
 
-export default function CustomerFormModal({ mode, initialValues, onClose, onSubmit }: CustomerFormModalProps) {
+export default function CustomerFormModal({ mode, initialValues, packages = [], onClose, onSubmit }: CustomerFormModalProps) {
   const [values, setValues] = useState<CustomerFormValues>(
     initialValues
       ? {
@@ -47,6 +50,7 @@ export default function CustomerFormModal({ mode, initialValues, onClose, onSubm
           birthDate: initialValues.birthDate,
           gender: initialValues.gender,
           city: initialValues.city,
+          tariffPackageId: "",
         }
       : EMPTY_VALUES
   );
@@ -198,6 +202,27 @@ export default function CustomerFormModal({ mode, initialValues, onClose, onSubm
             className={inputClass}
           />
         </div>
+
+        {mode === "create" && (
+          <div>
+            <label className={labelClass}>Package</label>
+            <select
+              required
+              value={values.tariffPackageId}
+              onChange={(event) => update("tariffPackageId", event.target.value)}
+              className={inputClass}
+            >
+              <option value="" disabled>
+                Select package
+              </option>
+              {packages.map((pkg) => (
+                <option key={pkg.id} value={pkg.id}>
+                  {pkg.packageName}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div className="mt-2 flex justify-end gap-3">
           <button

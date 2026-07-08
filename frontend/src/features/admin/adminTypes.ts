@@ -137,6 +137,7 @@ export interface CreateCustomerRequest {
   birthDate: string;
   gender: Gender;
   city: string;
+  tariffPackageId: number;
 }
 
 export interface UpdateCustomerRequest {

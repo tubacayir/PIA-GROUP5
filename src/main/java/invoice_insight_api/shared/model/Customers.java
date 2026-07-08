@@ -60,6 +60,9 @@ public class Customers {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+
+
+
 }
 
 
