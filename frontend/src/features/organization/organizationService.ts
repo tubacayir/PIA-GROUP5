@@ -1,4 +1,4 @@
-import api, { getApiErrorMessage } from "../../services/api";
+import api, { getApiErrorMessage } from "../../services/api.tsx";
 import type {
   CorporateInvoiceSummary,
   DashboardSummary,

@@ -1,4 +1,4 @@
-import api, { getApiErrorMessage } from "../../services/api.ts";
+import api, { getApiErrorMessage } from "../../services/api.tsx";
 
 import type {
   AuthUser,
