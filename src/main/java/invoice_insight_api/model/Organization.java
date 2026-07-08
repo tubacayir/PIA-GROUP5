@@ -22,6 +22,9 @@ public class Organization {
     @Column(unique = true, name = "taxIdentity_number", nullable = false, length = 10)
     private String taxIdentityNumber;
 
+    @Column(name = "organization_number", nullable = false, unique = true, length = 10)
+    private String organizationNumber;
+
     @Column(name = "name")
     private String name;
 

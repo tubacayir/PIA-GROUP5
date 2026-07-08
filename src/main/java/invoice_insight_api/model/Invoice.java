@@ -1,6 +1,8 @@
 package invoice_insight_api.model;
 
+import invoice_insight_api.enums.DeliveryMethod;
 import invoice_insight_api.enums.InvoiceStatus;
+import invoice_insight_api.enums.PaymentChannel;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -46,6 +48,17 @@ public class Invoice {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private InvoiceStatus status = InvoiceStatus.CREATED;
+
+    @Column(name = "payment_date")
+    private LocalDate paymentDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_channel", length = 20)
+    private PaymentChannel paymentChannel;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "delivery_method", length = 20)
+    private DeliveryMethod deliveryMethod;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

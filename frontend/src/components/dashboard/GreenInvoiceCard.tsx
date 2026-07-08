@@ -1,6 +1,15 @@
-import { greenInvoiceData } from "../../mock/dashboardMock";
+export interface GreenInvoiceData {
+  digitalInvoices: number;
+  paperInvoices: number;
+  carbonSavedKg: number;
+  treesEquivalent: number;
+}
 
-export default function GreenInvoiceCard() {
+interface GreenInvoiceCardProps {
+  data: GreenInvoiceData;
+}
+
+export default function GreenInvoiceCard({ data }: GreenInvoiceCardProps) {
   return (
     <section className="analytics-card green-invoice-card">
       <div className="analytics-card-header">
@@ -13,7 +22,7 @@ export default function GreenInvoiceCard() {
           <span>Digital Invoices</span>
 
           <strong>
-            {greenInvoiceData.digitalInvoices.toLocaleString("en-US")}
+            {data.digitalInvoices.toLocaleString("en-US")}
           </strong>
 
           <p>Total paperless invoices</p>
@@ -23,7 +32,7 @@ export default function GreenInvoiceCard() {
           <span>Paper Invoices</span>
 
           <strong>
-            {greenInvoiceData.paperInvoices.toLocaleString("en-US")}
+            {data.paperInvoices.toLocaleString("en-US")}
           </strong>
 
           <p>Invoices delivered through physical channels</p>
@@ -33,7 +42,7 @@ export default function GreenInvoiceCard() {
           <span>Carbon Saved</span>
 
           <strong>
-            {greenInvoiceData.carbonSavedKg.toLocaleString("en-US")} kg
+            {data.carbonSavedKg.toLocaleString("en-US")} kg
           </strong>
 
           <p>Estimated CO₂ reduction</p>
@@ -43,7 +52,7 @@ export default function GreenInvoiceCard() {
           <span>Trees Equivalent</span>
 
           <strong>
-            {greenInvoiceData.treesEquivalent}
+            {data.treesEquivalent}
           </strong>
 
           <p>Estimated environmental impact equivalent</p>

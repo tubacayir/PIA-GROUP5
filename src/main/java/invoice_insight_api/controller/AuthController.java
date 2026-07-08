@@ -1,9 +1,12 @@
 package invoice_insight_api.controller;
 
+import invoice_insight_api.dto.AdminLoginRequest;
+import invoice_insight_api.dto.AdminLoginResponse;
 import invoice_insight_api.dto.CorporateLoginRequest;
 import invoice_insight_api.dto.CorporateLoginResponse;
 import invoice_insight_api.dto.LoginRequest;
 import invoice_insight_api.dto.LoginResponse;
+import invoice_insight_api.service.AdminAuthService;
 import invoice_insight_api.service.AuthService;
 import invoice_insight_api.service.CorporateAuthService;
 import jakarta.validation.Valid;
@@ -21,6 +24,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final CorporateAuthService corporateAuthService;
+    private final AdminAuthService adminAuthService;
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
@@ -30,5 +34,10 @@ public class AuthController {
     @PostMapping("/corporate-login")
     public ResponseEntity<CorporateLoginResponse> corporateLogin(@Valid @RequestBody CorporateLoginRequest request) {
        return ResponseEntity.ok(corporateAuthService.login(request));
+    }
+
+    @PostMapping("/admin-login")
+    public ResponseEntity<AdminLoginResponse> adminLogin(@Valid @RequestBody AdminLoginRequest request) {
+        return ResponseEntity.ok(adminAuthService.login(request));
     }
 }

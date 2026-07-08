@@ -1,48 +1,15 @@
-import { datasetScenario } from "../../mock/datasetScenario";
+export interface RiskInsightItem {
+  title: string;
+  value: string;
+  description: string;
+  className: string;
+}
 
-const riskItems = [
-  {
-    title: "Late Invoices",
-    value:
-      datasetScenario.paymentStatus.late.toLocaleString(
-        "en-US"
-      ),
-    description: "Invoices with delayed payment",
-    className: "risk-high",
-  },
-  {
-    title: "Restricted Lines",
-    value:
-      datasetScenario.latePaymentBreakdown.twoMonthsOrMoreUnpaid.toLocaleString(
-        "en-US"
-      ),
-    description:
-      "Lines restricted due to long-term unpaid invoices",
-    className: "risk-restricted",
-  },
-  {
-    title: "Upper Package Recommendations",
-    value:
-      datasetScenario.recommendations.upperPackage.toLocaleString(
-        "en-US"
-      ),
-    description:
-      "Customers consistently exceeding package limits",
-    className: "risk-contract",
-  },
-  {
-    title: "Anomalous Invoices",
-    value:
-      datasetScenario.usage.anomalous.toLocaleString(
-        "en-US"
-      ),
-    description:
-      "Suspended invoices requiring admin review",
-    className: "risk-anomaly",
-  },
-];
+interface RiskInsightsCardProps {
+  items: RiskInsightItem[];
+}
 
-export default function RiskInsightsCard() {
+export default function RiskInsightsCard({ items }: RiskInsightsCardProps) {
   return (
     <section className="analytics-card risk-insights-card">
       <div className="analytics-card-header">
@@ -53,7 +20,7 @@ export default function RiskInsightsCard() {
       </div>
 
       <div className="risk-insights-grid">
-        {riskItems.map((item) => (
+        {items.map((item) => (
           <div
             className={`risk-insight-item ${item.className}`}
             key={item.title}

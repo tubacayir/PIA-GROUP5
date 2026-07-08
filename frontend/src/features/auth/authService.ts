@@ -6,8 +6,6 @@ import type {
   LoginResponse,
 } from "./authTypes";
 
-import { mockLogin } from "./mockAuth";
-
 interface CustomerLoginApiResponse {
   token: string;
   tokenType: string;
@@ -23,28 +21,53 @@ interface CorporateLoginApiResponse {
   organizationName: string;
 }
 
+interface AdminLoginApiResponse {
+  token: string;
+  tokenType: string;
+  adminId: number;
+  fullName: string;
+  canCreateInvoices: boolean;
+}
+
+type AnyLoginApiResponse =
+  | CustomerLoginApiResponse
+  | CorporateLoginApiResponse
+  | AdminLoginApiResponse;
+
 const toLoginResponse = (
-  data: CustomerLoginApiResponse | CorporateLoginApiResponse,
+  data: AnyLoginApiResponse,
   loginType: LoginRequest["loginType"]
 ): LoginResponse => {
-  const user: AuthUser =
-    loginType === "CORPORATE"
-      ? {
-          id: (data as CorporateLoginApiResponse).organizationId,
-          displayName: (data as CorporateLoginApiResponse)
-            .organizationName,
-          role: "ORGANIZATION_ADMIN",
-          customerId: null,
-          organizationId: (data as CorporateLoginApiResponse)
-            .organizationId,
-        }
-      : {
-          id: (data as CustomerLoginApiResponse).customerId,
-          displayName: (data as CustomerLoginApiResponse).fullName,
-          role: "CUSTOMER",
-          customerId: (data as CustomerLoginApiResponse).customerId,
-          organizationId: null,
-        };
+  let user: AuthUser;
+
+  if (loginType === "CORPORATE") {
+    const corporate = data as CorporateLoginApiResponse;
+    user = {
+      id: corporate.organizationId,
+      displayName: corporate.organizationName,
+      role: "ORGANIZATION_ADMIN",
+      customerId: null,
+      organizationId: corporate.organizationId,
+    };
+  } else if (loginType === "SYSTEM_ADMIN") {
+    const admin = data as AdminLoginApiResponse;
+    user = {
+      id: admin.adminId,
+      displayName: admin.fullName,
+      role: "SYSTEM_ADMIN",
+      customerId: null,
+      organizationId: null,
+    };
+  } else {
+    const customer = data as CustomerLoginApiResponse;
+    user = {
+      id: customer.customerId,
+      displayName: customer.fullName,
+      role: "CUSTOMER",
+      customerId: customer.customerId,
+      organizationId: null,
+    };
+  }
 
   return {
     accessToken: data.token,
@@ -56,17 +79,24 @@ const toLoginResponse = (
 export const login = async (
   data: LoginRequest
 ): Promise<LoginResponse> => {
-  if (data.loginType === "SYSTEM_ADMIN") {
-    // No backend endpoint exists yet for system-admin login.
-    return mockLogin(data);
-  }
-
   try {
     if (data.loginType === "CORPORATE") {
       const response = await api.post<CorporateLoginApiResponse>(
         "/auth/corporate-login",
         {
           taxIdentityNumber: data.identifier,
+          password: data.password,
+        }
+      );
+
+      return toLoginResponse(response.data, data.loginType);
+    }
+
+    if (data.loginType === "SYSTEM_ADMIN") {
+      const response = await api.post<AdminLoginApiResponse>(
+        "/auth/admin-login",
+        {
+          email: data.identifier,
           password: data.password,
         }
       );

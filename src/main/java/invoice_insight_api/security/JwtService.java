@@ -1,5 +1,6 @@
 package invoice_insight_api.security;
 
+import invoice_insight_api.model.AdminUser;
 import invoice_insight_api.model.Customers;
 import invoice_insight_api.model.Organization;
 import io.jsonwebtoken.Claims;
@@ -18,6 +19,7 @@ public class JwtService {
     public static final String ROLE_CLAIM = "role";
     public static final String CUSTOMER_ROLE = "CUSTOMER";
     public static final String ORGANIZATION_ROLE = "ORGANIZATION";
+    public static final String SYSTEM_ADMIN_ROLE = "SYSTEM_ADMIN";
 
     private final SecretKey key;
     private final long expirationMs;
@@ -34,6 +36,10 @@ public class JwtService {
 
     public String generateToken(Organization organization) {
         return buildToken(organization.getId().toString(), ORGANIZATION_ROLE);
+    }
+
+    public String generateToken(AdminUser adminUser) {
+        return buildToken(adminUser.getId().toString(), SYSTEM_ADMIN_ROLE);
     }
 
     private String buildToken(String subject, String role) {

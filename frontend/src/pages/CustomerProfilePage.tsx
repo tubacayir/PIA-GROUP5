@@ -232,7 +232,7 @@ import {
                   Welcome to PiaCell
                 </div>
   
-                <h1 className="mt-5 text-3xl font-bold tracking-tight lg:text-4xl">
+                <h1 className="mt-5 text-3xl font-bold tracking-tight lg:text-4xl" style={{ color: "#fff" }}>
                   Hello, {customer.customer_name}
                 </h1>
   

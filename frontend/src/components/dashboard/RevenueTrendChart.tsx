@@ -8,12 +8,23 @@ import {
   YAxis,
 } from "recharts";
 
-import { invoiceTrendData } from "../../mock/dashboardMock";
-
 const formatNumber = (value: number) =>
   new Intl.NumberFormat("en-US").format(value);
 
-export default function RevenueTrendChart() {
+export interface RevenueTrendPoint {
+  month: string;
+  issued: number;
+  paidOnTime: number;
+}
+
+interface RevenueTrendChartProps {
+  data: RevenueTrendPoint[];
+}
+
+export default function RevenueTrendChart({ data }: RevenueTrendChartProps) {
+  const maxValue = Math.max(...data.map((point) => point.issued), 1);
+  const yDomain: [number, number] = [0, Math.ceil(maxValue * 1.1)];
+
   return (
     <section className="analytics-card revenue-trend-card">
       <div className="chart-card-header">
@@ -45,7 +56,7 @@ export default function RevenueTrendChart() {
       <div className="revenue-chart-container">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
-            data={invoiceTrendData}
+            data={data}
             margin={{
               top: 10,
               right: 10,
@@ -113,7 +124,7 @@ export default function RevenueTrendChart() {
             />
 
 <YAxis
-  domain={[9_000, 12_500]}
+  domain={yDomain}
   axisLine={false}
   tickLine={false}
   tick={{

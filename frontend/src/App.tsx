@@ -12,6 +12,9 @@ import OrganizationLayout from "./components/layout/OrganizationLayout";
 import DashboardPage from "./pages/DashboardPage";
 import CustomerListPage from "./pages/CustomerListPage";
 import CustomerDetailPage from "./pages/CustomerDetailPage";
+import CompanyListPage from "./pages/CompanyListPage";
+import CompanyDetailPage from "./pages/CompanyDetailPage";
+import AdminUsersPage from "./pages/AdminUsersPage";
 import InvoiceListPage from "./pages/InvoiceListPage";
 import CustomerProfilePage from "./pages/CustomerProfilePage";
 
@@ -92,6 +95,21 @@ function App() {
               <Route
                 path="/customers/:id"
                 element={<CustomerDetailPage />}
+              />
+
+              <Route
+                path="/companies"
+                element={<CompanyListPage />}
+              />
+
+              <Route
+                path="/companies/:id"
+                element={<CompanyDetailPage />}
+              />
+
+              <Route
+                path="/admins"
+                element={<AdminUsersPage />}
               />
 
               <Route

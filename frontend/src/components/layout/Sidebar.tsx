@@ -1,7 +1,9 @@
 import {
+  Building2,
   LayoutDashboard,
   LogOut,
   ReceiptText,
+  ShieldCheck,
   Users,
 } from "lucide-react";
 
@@ -24,9 +26,19 @@ const navigationItems = [
     icon: Users,
   },
   {
+    label: "Companies",
+    path: "/companies",
+    icon: Building2,
+  },
+  {
     label: "Invoices",
     path: "/invoices",
     icon: ReceiptText,
+  },
+  {
+    label: "Admins",
+    path: "/admins",
+    icon: ShieldCheck,
   },
 ];
 
