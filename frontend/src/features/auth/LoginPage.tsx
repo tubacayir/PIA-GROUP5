@@ -8,7 +8,6 @@ import {
   FileText,
   LockKeyhole,
   ShieldCheck,
-  Sparkles,
   UserRound,
 } from "lucide-react";
 import {
@@ -83,7 +82,11 @@ function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
-export default function LoginPage() {
+interface LoginPageProps {
+  variant?: "public" | "admin";
+}
+
+export default function LoginPage({ variant = "public" }: LoginPageProps) {
   const navigate = useNavigate();
 
   const user = useAuthStore((state) => state.user);
@@ -99,8 +102,14 @@ export default function LoginPage() {
     (state) => state.clearError
   );
 
-  const [activeTab, setActiveTab] =
-    useState<LoginType>("INDIVIDUAL");
+  const visibleTabs =
+    variant === "admin"
+      ? TABS.filter((item) => item.key === "SYSTEM_ADMIN")
+      : TABS.filter((item) => item.key !== "SYSTEM_ADMIN");
+
+  const [activeTab, setActiveTab] = useState<LoginType>(
+    variant === "admin" ? "SYSTEM_ADMIN" : "INDIVIDUAL"
+  );
 
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
@@ -252,12 +261,6 @@ export default function LoginPage() {
           </div>
 
           <div className="relative z-10 max-w-xl">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-blue-200 backdrop-blur">
-              <Sparkles className="h-4 w-4" />
-
-              Smart billing intelligence
-            </div>
-
             <h1 className="text-4xl font-bold leading-tight tracking-tight xl:text-5xl">
               Turn billing data into
               <span className="block text-blue-400">
@@ -352,7 +355,7 @@ export default function LoginPage() {
 
             <div>
               <p className="text-sm font-semibold text-blue-600">
-                Welcome back
+                Welcome
               </p>
 
               <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">
@@ -365,8 +368,9 @@ export default function LoginPage() {
               </p>
             </div>
 
-            <div className="mt-8 grid grid-cols-3 gap-2 rounded-2xl bg-slate-100 p-1.5">
-              {TABS.map((item) => {
+            {visibleTabs.length > 1 && (
+            <div className="mt-8 grid grid-cols-2 gap-2 rounded-2xl bg-slate-100 p-1.5">
+              {visibleTabs.map((item) => {
                 const Icon = item.icon;
 
                 const isActive =
@@ -394,6 +398,7 @@ export default function LoginPage() {
                 );
               })}
             </div>
+            )}
 
             <div className="mt-6 rounded-2xl border border-blue-100 bg-blue-50/70 p-4">
               <div className="flex items-start gap-3">
@@ -558,13 +563,6 @@ export default function LoginPage() {
                 )}
               </button>
             </form>
-
-            <div className="mt-8 border-t border-slate-200 pt-6 text-center">
-              <p className="text-xs leading-5 text-slate-400">
-                Having trouble signing in? Contact your
-                system administrator.
-              </p>
-            </div>
           </div>
         </section>
       </div>

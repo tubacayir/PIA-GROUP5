@@ -4,7 +4,6 @@ import {
   LayoutDashboard,
   LogOut,
   ReceiptText,
-  Smartphone,
   Users,
 } from "lucide-react";
 
@@ -22,11 +21,6 @@ const navigationItems = [
     label: "Employees",
     path: "/organization/employees",
     icon: Users,
-  },
-  {
-    label: "Subscriptions",
-    path: "/organization/subscriptions",
-    icon: Smartphone,
   },
   {
     label: "Usage Analytics",
@@ -71,7 +65,7 @@ export default function OrganizationSidebar() {
       </div>
 
       <div className="mt-10">
-        <p className="mb-3 px-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600">
+        <p className="mb-3 px-3 text-lg font-bold uppercase tracking-wide text-white">
           {user?.displayName ?? "Organization"}
         </p>
 

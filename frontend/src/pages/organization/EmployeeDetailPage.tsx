@@ -124,6 +124,26 @@ function EmployeeDetailContent({ employeeId }: { employeeId: number }) {
                 </dd>
               </div>
             )}
+
+            {employee.overageAmount > 0 && (
+              <>
+                <div className="flex items-center justify-between">
+                  <dt className="text-slate-500">Overage Amount</dt>
+                  <dd>
+                    <span className="rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700">
+                      {formatCurrency(employee.overageAmount)}
+                    </span>
+                  </dd>
+                </div>
+
+                <div className="flex items-center justify-between border-t border-slate-100 pt-3">
+                  <dt className="font-semibold text-slate-700">Total with Overage</dt>
+                  <dd className="text-lg font-bold text-slate-950">
+                    {formatCurrency(employee.totalWithOverage)}
+                  </dd>
+                </div>
+              </>
+            )}
           </dl>
         </article>
 

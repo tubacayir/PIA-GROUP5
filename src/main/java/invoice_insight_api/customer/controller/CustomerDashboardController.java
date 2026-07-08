@@ -2,6 +2,7 @@ package invoice_insight_api.customer.controller;
 
 import invoice_insight_api.customer.dto.DashboardSummaryResponse;
 import invoice_insight_api.customer.service.CustomerDashboardService;
+import invoice_insight_api.shared.dto.CurrentUsageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -20,5 +21,11 @@ public class CustomerDashboardController {
     public ResponseEntity<DashboardSummaryResponse> getDashboardSummary(Authentication authentication) {
         Long customerId = (Long) authentication.getPrincipal();
         return ResponseEntity.ok(customerDashboardService.getDashboardSummary(customerId));
+    }
+
+    @GetMapping("/usage")
+    public ResponseEntity<CurrentUsageResponse> getCurrentUsage(Authentication authentication) {
+        Long customerId = (Long) authentication.getPrincipal();
+        return ResponseEntity.ok(customerDashboardService.getCurrentUsage(customerId));
     }
 }

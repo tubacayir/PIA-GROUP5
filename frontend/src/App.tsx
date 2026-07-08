@@ -22,8 +22,6 @@ import CustomerProfilePage from "./pages/CustomerProfilePage";
 import OrganizationDashboardPage from "./pages/organization/OrganizationDashboardPage";
 import EmployeeListPage from "./pages/organization/EmployeeListPage";
 import EmployeeDetailPage from "./pages/organization/EmployeeDetailPage";
-import SubscriptionListPage from "./pages/organization/SubscriptionListPage";
-import SubscriptionDetailPage from "./pages/organization/SubscriptionDetailPage";
 import UsageAnalyticsPage from "./pages/organization/UsageAnalyticsPage";
 import OrganizationInvoiceListPage from "./pages/organization/InvoiceListPage";
 import OrganizationInvoiceDetailPage from "./pages/organization/InvoiceDetailPage";
@@ -67,6 +65,7 @@ function App() {
       <Routes>
         {/* Public routes */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/admin/login" element={<LoginPage variant="admin" />} />
         <Route path="/logout" element={<LogoutPage />} />
 
         <Route
@@ -154,16 +153,6 @@ function App() {
               <Route
                 path="/organization/employees/:id"
                 element={<EmployeeDetailPage />}
-              />
-
-              <Route
-                path="/organization/subscriptions"
-                element={<SubscriptionListPage />}
-              />
-
-              <Route
-                path="/organization/subscriptions/:id"
-                element={<SubscriptionDetailPage />}
               />
 
               <Route

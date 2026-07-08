@@ -3,8 +3,10 @@ import {
   CircleAlert,
   Gauge,
   MessageSquare,
+  Package,
   Phone,
   ReceiptText,
+  Smartphone,
   Sparkles,
   Users,
   Wifi,
@@ -28,6 +30,7 @@ import { useAsyncData } from "../../features/organization/useAsyncData";
 import {
   getDashboardSummary,
   getInvoiceTrend,
+  getRecommendations,
   getUsageTrend,
 } from "../../features/organization/organizationService";
 import { formatCurrency, formatMonthLabel, formatNumber } from "../../features/organization/format";
@@ -54,6 +57,7 @@ export default function OrganizationDashboardPage() {
   const summary = useAsyncData(getDashboardSummary, []);
   const usageTrend = useAsyncData(getUsageTrend, []);
   const invoiceTrend = useAsyncData(getInvoiceTrend, []);
+  const recommendations = useAsyncData(() => getRecommendations("UPGRADE_PACKAGE"), []);
 
   const loading = summary.loading || usageTrend.loading || invoiceTrend.loading;
   const error = summary.error ?? usageTrend.error ?? invoiceTrend.error;
@@ -80,13 +84,12 @@ export default function OrganizationDashboardPage() {
     totalAmount: point.totalAmount,
   }));
 
+  const topRecommendation = (recommendations.data ?? [])[0] ?? null;
+
   return (
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-3xl font-bold text-slate-900">Organization Dashboard</h1>
-        <p className="mt-1 text-sm text-slate-500">
-          A summary of your organization's telecom footprint.
-        </p>
       </div>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -109,13 +112,6 @@ export default function OrganizationDashboardPage() {
           value={formatCurrency(kpis.totalMonthlyInvoiceAmount)}
           icon={ReceiptText}
           tone="violet"
-        />
-
-        <MetricCard
-          label="Recommendation Opportunities"
-          value={formatNumber(kpis.recommendationOpportunities)}
-          icon={Sparkles}
-          tone="amber"
         />
 
         <MetricCard
@@ -145,6 +141,84 @@ export default function OrganizationDashboardPage() {
           icon={CircleAlert}
           tone="red"
         />
+      </section>
+
+      <section className="grid gap-6 lg:grid-cols-2">
+        <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center justify-between">
+            <h2 className="font-bold text-slate-950">Company Package</h2>
+            <Package className="h-5 w-5 text-slate-400" />
+          </div>
+
+          {kpis.currentCorporatePackage ? (
+            <div className="mt-4">
+              <p className="text-xl font-bold text-slate-950">{kpis.currentCorporatePackage.packageName}</p>
+              <p className="mt-1 text-sm text-slate-500">{formatCurrency(kpis.currentCorporatePackage.monthlyFee)} / month</p>
+
+              <div className="mt-5 grid grid-cols-3 gap-3">
+                <div className="rounded-xl bg-slate-50 p-3 text-center">
+                  <p className="text-xs text-slate-500">Internet</p>
+                  <p className="mt-1 font-semibold text-slate-900">{kpis.currentCorporatePackage.internetLimitGb} GB</p>
+                </div>
+
+                <div className="rounded-xl bg-slate-50 p-3 text-center">
+                  <p className="text-xs text-slate-500">Voice</p>
+                  <p className="mt-1 font-semibold text-slate-900">{kpis.currentCorporatePackage.minuteLimit} min</p>
+                </div>
+
+                <div className="rounded-xl bg-slate-50 p-3 text-center">
+                  <p className="text-xs text-slate-500">SMS</p>
+                  <p className="mt-1 font-semibold text-slate-900">{kpis.currentCorporatePackage.smsLimit}</p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <p className="mt-4 text-sm text-slate-500">No company package assigned yet.</p>
+          )}
+        </article>
+
+        <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center justify-between">
+            <h2 className="font-bold text-slate-950">Subscriptions</h2>
+            <Smartphone className="h-5 w-5 text-slate-400" />
+          </div>
+
+          <div className="mt-4 flex gap-6">
+            <div>
+              <p className="text-2xl font-bold text-slate-950">{formatNumber(kpis.totalActiveSubscriptions)}</p>
+              <p className="text-sm text-slate-500">active subscriptions</p>
+            </div>
+
+            <div>
+              <p className="text-2xl font-bold text-slate-950">{formatNumber(kpis.subscriptionsExceedingLimits)}</p>
+              <p className="text-sm text-slate-500">exceeding limits</p>
+            </div>
+          </div>
+
+          {topRecommendation && (
+            <div className="mt-5 rounded-xl border border-violet-100 bg-violet-50 p-4">
+              <div className="flex items-start gap-3">
+                <div className="rounded-lg bg-white p-2 text-violet-600 shadow-sm">
+                  <Sparkles className="h-4 w-4" />
+                </div>
+
+                <div>
+                  <p className="text-sm font-semibold text-slate-900">
+                    {topRecommendation.suggestedPackage
+                      ? `Consider upgrading to ${topRecommendation.suggestedPackage.packageName}`
+                      : "New package recommendation"}
+                  </p>
+                  <p className="mt-1 text-xs text-slate-600">{topRecommendation.reason}</p>
+                  {topRecommendation.expectedSavingAmount != null && (
+                    <p className="mt-1 text-xs font-medium text-emerald-700">
+                      Est. saving {formatCurrency(topRecommendation.expectedSavingAmount)}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </article>
       </section>
 
       <section className="grid gap-6 lg:grid-cols-2">
