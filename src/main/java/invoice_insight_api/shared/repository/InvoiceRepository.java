@@ -1,5 +1,6 @@
 package invoice_insight_api.shared.repository;
 
+import invoice_insight_api.shared.enums.InvoiceStatus;
 import invoice_insight_api.shared.model.Invoice;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,6 +17,8 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
     List<Invoice> findBySubscription_Customers_IdOrderByIssueDateDesc(Long customerId);
 
     Optional<Invoice> findByIdAndSubscription_Customers_Id(Long id, Long customerId);
+
+    List<Invoice> findBySubscription_Customers_IdAndStatusInOrderByDueDateAsc(Long customerId, List<InvoiceStatus> statuses);
 
     List<Invoice> findBySubscription_Organization_IdOrderByIssueDateDesc(Long organizationId);
 

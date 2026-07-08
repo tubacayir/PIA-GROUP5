@@ -1,5 +1,7 @@
 package invoice_insight_api.corporate.dto;
 
+import invoice_insight_api.shared.dto.PackageResponse;
+
 import java.math.BigDecimal;
 
 public record DashboardSummaryResponse(
@@ -10,6 +12,7 @@ public record DashboardSummaryResponse(
         long totalVoiceMinutes,
         long totalSmsUsage,
         long subscriptionsExceedingLimits,
-        long recommendationOpportunities
+        long recommendationOpportunities,
+        PackageResponse currentCorporatePackage
 ) {
 }
