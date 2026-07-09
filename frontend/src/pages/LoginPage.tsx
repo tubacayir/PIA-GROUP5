@@ -71,7 +71,7 @@ export default function LoginPage() {
     }
   }
 
-   async function handleSubmit(e: FormEvent) { {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
 
