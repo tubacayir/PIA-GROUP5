@@ -11,6 +11,7 @@ import {
   UserRound,
 } from "lucide-react";
 import {
+  Link,
   Navigate,
   useNavigate,
 } from "react-router-dom";
@@ -234,6 +235,123 @@ export default function LoginPage({ variant = "public" }: LoginPageProps) {
 
   const visibleError = validationError ?? error;
 
+  if (variant === "public") {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-8">
+        <section className="w-full max-w-md rounded-[28px] border border-slate-200 bg-white p-6 shadow-xl shadow-slate-300/40">
+          <div className="text-center">
+            <Link to="/" className="text-sm font-bold text-blue-600 hover:text-blue-700 hover:underline">
+              PiaCell
+            </Link>
+            <h1 className="mt-4 text-2xl font-bold tracking-tight text-slate-950">Bireysel / Şirket Girişi</h1>
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              Hesap tipini seçip bilgilerinizle devam edin.
+            </p>
+          </div>
+
+          <div className="mt-7 grid grid-cols-2 gap-2 rounded-2xl bg-slate-100 p-1.5">
+            {visibleTabs.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.key;
+
+              return (
+                <button
+                  key={item.key}
+                  type="button"
+                  onClick={() => switchTab(item.key)}
+                  className={`flex items-center justify-center gap-2 rounded-xl px-3 py-3 text-sm font-semibold transition ${
+                    isActive ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:bg-white/70 hover:text-slate-800"
+                  }`}
+                >
+                  <Icon className="h-4 w-4" />
+                  {item.label}
+                </button>
+              );
+            })}
+          </div>
+
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
+            <div>
+              <label htmlFor="public-login-identifier" className="mb-2 block text-sm font-semibold text-slate-700">
+                {activeTabConfig.idLabel}
+              </label>
+              <div className="relative">
+                <ActiveTabIcon className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+                <input
+                  id="public-login-identifier"
+                  type="text"
+                  inputMode={activeTabConfig.numericOnly ? "numeric" : "email"}
+                  autoComplete="username"
+                  maxLength={activeTabConfig.maxLength}
+                  value={identifier}
+                  onChange={(event) => handleIdentifierChange(event.target.value)}
+                  placeholder={activeTabConfig.idPlaceholder}
+                  disabled={isLoading}
+                  className="h-12 w-full rounded-xl border border-slate-300 bg-white pl-12 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-50"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="public-login-password" className="mb-2 block text-sm font-semibold text-slate-700">
+                Password
+              </label>
+              <div className="relative">
+                <LockKeyhole className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+                <input
+                  id="public-login-password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(event) => {
+                    setPassword(event.target.value);
+                    clearErrors();
+                  }}
+                  placeholder="Enter your password"
+                  disabled={isLoading}
+                  className="h-12 w-full rounded-xl border border-slate-300 bg-white pl-12 pr-12 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-50"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((currentValue) => !currentValue)}
+                  disabled={isLoading}
+                  className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-slate-400 transition hover:text-slate-700 disabled:cursor-not-allowed"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
+            </div>
+
+            {visibleError && (
+              <div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+                {visibleError}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isLoading ? "Signing in..." : "Sign In"}
+              {!isLoading && <ArrowRight className="h-4 w-4" />}
+            </button>
+          </form>
+
+          <div className="mt-6 flex items-center justify-between text-sm">
+            <Link to="/" className="font-semibold text-slate-500 hover:text-slate-700 hover:underline">
+              Back to intro
+            </Link>
+            <Link to="/admin/login" className="font-semibold text-blue-600 hover:text-blue-700 hover:underline">
+              Admin Login
+            </Link>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-slate-100 p-4 lg:p-6">
       <div className="mx-auto grid min-h-[calc(100vh-2rem)] w-full max-w-[1500px] overflow-hidden rounded-[28px] bg-white shadow-2xl shadow-slate-300/60 lg:min-h-[calc(100vh-3rem)] lg:grid-cols-[1.05fr_0.95fr]">
@@ -355,16 +473,17 @@ export default function LoginPage({ variant = "public" }: LoginPageProps) {
 
             <div>
               <p className="text-sm font-semibold text-blue-600">
-                Welcome
+                {variant === "admin" ? "Admin Portal" : "Welcome"}
               </p>
 
               <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">
-                Sign in to your account
+                {variant === "admin" ? "System Admin Login" : "Sign in to your account"}
               </h2>
 
               <p className="mt-2 text-sm leading-6 text-slate-500">
-                Select your account type and enter your
-                credentials to continue.
+                {variant === "admin"
+                  ? "Enter your admin e-mail and password to access the management dashboard."
+                  : "Select your account type and enter your credentials to continue."}
               </p>
             </div>
 
@@ -563,6 +682,18 @@ export default function LoginPage({ variant = "public" }: LoginPageProps) {
                 )}
               </button>
             </form>
+
+            <div className="mt-6 text-center text-sm text-slate-500">
+              {variant === "admin" ? (
+                <Link to="/login" className="font-semibold text-blue-600 hover:text-blue-700 hover:underline">
+                  Customer or corporate login
+                </Link>
+              ) : (
+                <Link to="/admin/login" className="font-semibold text-blue-600 hover:text-blue-700 hover:underline">
+                  System admin login
+                </Link>
+              )}
+            </div>
           </div>
         </section>
       </div>

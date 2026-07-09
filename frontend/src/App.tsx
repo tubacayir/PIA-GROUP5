@@ -25,6 +25,7 @@ import UsageAnalyticsPage from "./pages/organization/UsageAnalyticsPage";
 import OrganizationInvoiceListPage from "./pages/organization/InvoiceListPage";
 import OrganizationInvoiceDetailPage from "./pages/organization/InvoiceDetailPage";
 
+import LandingPage from "./features/auth/LandingPage";
 import LoginPage from "./features/auth/LoginPage";
 import ProtectedRoute from "./features/auth/ProtectedRoute";
 import RoleRoute from "./features/auth/RoleRoute";
@@ -63,7 +64,9 @@ function App() {
     <BrowserRouter>
       <Routes>
         {/* Public routes */}
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
         <Route path="/admin/login" element={<LoginPage variant="admin" />} />
         <Route path="/logout" element={<LogoutPage />} />
 
@@ -172,11 +175,6 @@ function App() {
 />
           </Route>
         </Route>
-
-        <Route
-          path="/"
-          element={<Navigate to="/login" replace />}
-        />
 
         <Route
           path="*"
