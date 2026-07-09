@@ -4,6 +4,7 @@ import invoice_insight_api.corporate.dto.CorporateInvoiceSummaryResponse;
 import invoice_insight_api.corporate.dto.DashboardSummaryResponse;
 import invoice_insight_api.corporate.dto.EmployeeResponse;
 import invoice_insight_api.corporate.dto.InvoiceAnalyticsResponse;
+import invoice_insight_api.corporate.dto.RecommendationResponse;
 import invoice_insight_api.shared.dto.InvoiceDetailResponse;
 import invoice_insight_api.shared.dto.MonthlyInvoiceTrendPoint;
 import invoice_insight_api.corporate.dto.MonthlyUsageTrendPoint;
@@ -13,7 +14,9 @@ import invoice_insight_api.corporate.dto.UpdateSubscriptionPackageRequest;
 import invoice_insight_api.corporate.dto.UpdateSubscriptionStatusRequest;
 import invoice_insight_api.corporate.dto.UsageAnalyticsResponse;
 import invoice_insight_api.corporate.service.CorporateService;
+import invoice_insight_api.shared.enums.RecommendationType;
 import invoice_insight_api.shared.service.InvoiceService;
+import invoice_insight_api.shared.service.RecommendationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +26,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -34,6 +38,7 @@ public class CorporateController {
 
     private final CorporateService corporateService;
     private final InvoiceService invoiceService;
+    private final RecommendationService recommendationService;
 
     @GetMapping("/dashboard/summary")
     public ResponseEntity<DashboardSummaryResponse> getDashboardSummary(Authentication authentication) {
@@ -92,8 +97,10 @@ public class CorporateController {
     }
 
     @GetMapping("/usage-analytics")
-    public ResponseEntity<UsageAnalyticsResponse> getUsageAnalytics(Authentication authentication) {
-        return ResponseEntity.ok(corporateService.getUsageAnalytics(organizationId(authentication)));
+    public ResponseEntity<UsageAnalyticsResponse> getUsageAnalytics(
+            @RequestParam(defaultValue = "false") boolean overOnly,
+            Authentication authentication) {
+        return ResponseEntity.ok(corporateService.getUsageAnalytics(organizationId(authentication), overOnly));
     }
 
     @GetMapping("/invoices")
@@ -109,6 +116,13 @@ public class CorporateController {
     @GetMapping("/invoices/analytics")
     public ResponseEntity<InvoiceAnalyticsResponse> getInvoiceAnalytics(Authentication authentication) {
         return ResponseEntity.ok(invoiceService.getInvoiceAnalyticsForOrganization(organizationId(authentication)));
+    }
+
+    @GetMapping("/recommendations")
+    public ResponseEntity<List<RecommendationResponse>> getRecommendations(
+            @RequestParam RecommendationType type,
+            Authentication authentication) {
+        return ResponseEntity.ok(recommendationService.getRecommendationsForOrganization(organizationId(authentication), type));
     }
 
     private Long organizationId(Authentication authentication) {

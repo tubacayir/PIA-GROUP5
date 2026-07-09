@@ -4,6 +4,7 @@ import { ReceiptText, Search } from "lucide-react";
 
 import MetricCard from "../../components/organization/MetricCard";
 import StatusBadge from "../../components/organization/StatusBadge";
+import Pagination from "../../components/organization/Pagination";
 import { ErrorState, LoadingState } from "../../components/organization/AsyncStates";
 import { useAsyncData } from "../../features/organization/useAsyncData";
 import {
@@ -75,34 +76,6 @@ export default function InvoiceListPage() {
             icon={ReceiptText}
             tone="violet"
           />
-        </section>
-      )}
-
-      {analytics.data && analytics.data.mostExpensiveSubscriptions.length > 0 && (
-        <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-200 p-5">
-            <h2 className="font-bold text-slate-950">Most Expensive Subscriptions</h2>
-            <p className="mt-1 text-sm text-slate-500">Ranked by total billed amount</p>
-          </div>
-
-          <div className="divide-y divide-slate-100">
-            {analytics.data.mostExpensiveSubscriptions.map((item, index) => (
-              <div key={item.subscriptionId} className="flex items-center justify-between gap-4 p-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-xs font-bold text-slate-600">
-                    {index + 1}
-                  </div>
-
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900">{item.employeeName}</p>
-                    <p className="text-xs text-slate-500">{item.phoneNumber} · {item.packageName}</p>
-                  </div>
-                </div>
-
-                <p className="text-sm font-bold text-slate-950">{formatCurrency(item.totalBilledAmount)}</p>
-              </div>
-            ))}
-          </div>
         </section>
       )}
 
@@ -193,29 +166,7 @@ export default function InvoiceListPage() {
             Showing {paginated.length} of {filtered.length} invoices
           </p>
 
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setPage((current) => Math.max(1, current - 1))}
-              disabled={page === 1}
-              className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              Previous
-            </button>
-
-            <span className="px-2 text-sm font-medium text-slate-700">
-              Page {page} of {totalPages}
-            </span>
-
-            <button
-              type="button"
-              onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
-              disabled={page === totalPages}
-              className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              Next
-            </button>
-          </div>
+          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
         </div>
       </section>
     </div>

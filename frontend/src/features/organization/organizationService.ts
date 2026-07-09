@@ -8,6 +8,7 @@ import type {
   MonthlyInvoiceTrendPoint,
   MonthlyUsageTrendPoint,
   PackageInfo,
+  Recommendation,
   Subscription,
   UsageAnalytics,
 } from "./organizationTypes";
@@ -51,8 +52,11 @@ export const updateSubscriptionStatus = (id: number, status: string) =>
 export const getPackages = () =>
   unwrap<PackageInfo[]>(api.get("/corporate/packages"));
 
-export const getUsageAnalytics = () =>
-  unwrap<UsageAnalytics>(api.get("/corporate/usage-analytics"));
+export const getUsageAnalytics = (overOnly = false) =>
+  unwrap<UsageAnalytics>(api.get("/corporate/usage-analytics", { params: { overOnly } }));
+
+export const getRecommendations = (type: string) =>
+  unwrap<Recommendation[]>(api.get("/corporate/recommendations", { params: { type } }));
 
 export const getInvoices = () =>
   unwrap<CorporateInvoiceSummary[]>(api.get("/corporate/invoices"));

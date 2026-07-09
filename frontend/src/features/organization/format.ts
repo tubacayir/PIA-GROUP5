@@ -22,9 +22,9 @@ export function formatDate(value: string | null | undefined) {
     return "—";
   }
 
-  return new Intl.DateTimeFormat("en-US", {
+  return new Intl.DateTimeFormat("tr-TR", {
     year: "numeric",
-    month: "short",
+    month: "2-digit",
     day: "2-digit",
-  }).format(new Date(value));
+  }).format(new Date(`${value}T00:00:00`));
 }

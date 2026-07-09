@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import api from "../services/api.tsx";
@@ -38,14 +38,7 @@ const TABS: {
     maxLength: 10,
     numericOnly: true,
   },
-  {
-    key: "admin",
-    label: "System Admin",
-    idLabel: "E-mail Address",
-    idPlaceholder: "admin@example.com",
-    maxLength: 100,
-    numericOnly: false,
-  },
+
 ];
 
 export default function LoginPage() {
@@ -78,7 +71,7 @@ export default function LoginPage() {
     }
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+   async function handleSubmit(e: FormEvent) { {
     e.preventDefault();
     setError(null);
 
@@ -149,7 +142,7 @@ export default function LoginPage() {
               <span className="font-medium text-gray-700">{tab.idLabel}</span>
               <input
                 className="border border-gray-300 p-2.5 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                type={activeTab === "admin" ? "email" : "text"}
+                type="text"
                 inputMode={tab.numericOnly ? "numeric" : "email"}
                 value={identifier}
                 onChange={(e) => handleIdentifierChange(e.target.value)}
@@ -193,9 +186,7 @@ export default function LoginPage() {
               {submitting ? "Signing in..." : "Sign In"}
             </button>
 
-            <p className="text-xs text-gray-400 text-center">
-              Forgot your password? Contact your system administrator.
-            </p>
+
           </form>
         </div>
       </div>

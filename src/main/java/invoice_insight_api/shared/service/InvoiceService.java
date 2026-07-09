@@ -7,9 +7,11 @@ import invoice_insight_api.shared.dto.InvoiceLineResponse;
 import invoice_insight_api.shared.dto.InvoiceSummaryResponse;
 import invoice_insight_api.shared.dto.MonthlyInvoiceTrendPoint;
 import invoice_insight_api.corporate.dto.TopSpenderItem;
+import invoice_insight_api.shared.enums.InvoiceLineType;
 import invoice_insight_api.shared.exception.ResourceNotFoundException;
 import invoice_insight_api.shared.model.Customers;
 import invoice_insight_api.shared.model.Invoice;
+import invoice_insight_api.shared.model.InvoiceLine;
 import invoice_insight_api.shared.model.Subscription;
 import invoice_insight_api.shared.repository.InvoiceLineRepository;
 import invoice_insight_api.shared.repository.InvoiceRepository;
@@ -20,15 +22,20 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class InvoiceService {
+
+    private static final Set<InvoiceLineType> OVERAGE_LINE_TYPES = EnumSet.of(
+            InvoiceLineType.INTERNET_OVERAGE, InvoiceLineType.MINUTE_OVERAGE, InvoiceLineType.SMS_OVERAGE);
 
     private final InvoiceRepository invoiceRepository;
     private final InvoiceLineRepository invoiceLineRepository;
@@ -117,6 +124,16 @@ public class InvoiceService {
         return invoiceRepository.findBySubscription_IdOrderByIssueDateDesc(subscriptionId).stream()
                 .findFirst()
                 .map(this::toSummary);
+    }
+
+    public BigDecimal getOverageAmountForLatestInvoice(Long subscriptionId) {
+        return invoiceRepository.findBySubscription_IdOrderByIssueDateDesc(subscriptionId).stream()
+                .findFirst()
+                .map(invoice -> invoiceLineRepository.findByInvoice_Id(invoice.getId()).stream()
+                        .filter(line -> OVERAGE_LINE_TYPES.contains(line.getLineType()))
+                        .map(InvoiceLine::getAmount)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add))
+                .orElse(BigDecimal.ZERO);
     }
 
     private InvoiceDetailResponse toDetail(Invoice invoice) {

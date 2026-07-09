@@ -42,6 +42,8 @@ export interface Employee {
   commitmentEndDate: string | null;
   latestInvoice: InvoiceSummary | null;
   currentUsage: CurrentUsage | null;
+  overageAmount: number;
+  totalWithOverage: number;
 }
 
 export interface Subscription {
@@ -64,6 +66,21 @@ export interface DashboardSummary {
   totalSmsUsage: number;
   subscriptionsExceedingLimits: number;
   recommendationOpportunities: number;
+  currentCorporatePackage: PackageInfo | null;
+}
+
+export interface Recommendation {
+  id: number;
+  employeeName: string;
+  phoneNumber: string;
+  currentPackage: PackageInfo | null;
+  suggestedPackage: PackageInfo | null;
+  recommendationType: string;
+  reason: string;
+  expectedSavingAmount: number | null;
+  confidenceScore: number;
+  status: string;
+  createdAt: string;
 }
 
 export interface MonthlyUsageTrendPoint {

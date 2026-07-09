@@ -86,7 +86,6 @@ function InvoiceDetailContent({ invoiceId }: { invoiceId: number }) {
                 <tr className="border-b border-slate-200 text-left">
                   <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Type</th>
                   <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Description</th>
-                  <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Qty</th>
                   <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Unit Price</th>
                   <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Amount</th>
                 </tr>
@@ -101,7 +100,6 @@ function InvoiceDetailContent({ invoiceId }: { invoiceId: number }) {
                       </span>
                     </td>
                     <td className="px-5 py-4 text-sm text-slate-600">{line.description}</td>
-                    <td className="px-5 py-4 text-right text-sm text-slate-600">{line.quantity}</td>
                     <td className="px-5 py-4 text-right text-sm text-slate-600">{formatCurrency(line.unitPrice)}</td>
                     <td className="px-5 py-4 text-right text-sm font-semibold text-slate-900">
                       {formatCurrency(line.amount)}

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Search, Users } from "lucide-react";
 
 import StatusBadge from "../../components/organization/StatusBadge";
+import Pagination from "../../components/organization/Pagination";
 import { ErrorState, LoadingState } from "../../components/organization/AsyncStates";
 import { useAsyncData } from "../../features/organization/useAsyncData";
 import { getEmployees } from "../../features/organization/organizationService";
@@ -10,28 +11,22 @@ import { formatCurrency, formatDate } from "../../features/organization/format";
 
 const PAGE_SIZE = 10;
 
-type StatusFilter = "All" | "ACTIVE" | "PASSIVE" | "SUSPENDED";
-
 export default function EmployeeListPage() {
   const { data: employees, loading, error } = useAsyncData(getEmployees, []);
   const [searchTerm, setSearchTerm] = useState("");
-  const [status, setStatus] = useState<StatusFilter>("All");
   const [page, setPage] = useState(1);
 
   const filtered = useMemo(() => {
     const normalized = searchTerm.trim().toLowerCase();
 
     return (employees ?? []).filter((employee) => {
-      const matchesSearch =
+      return (
         normalized === "" ||
         `${employee.firstName} ${employee.lastName}`.toLowerCase().includes(normalized) ||
-        employee.phoneNumber.includes(normalized);
-
-      const matchesStatus = status === "All" || employee.subscriptionStatus === status;
-
-      return matchesSearch && matchesStatus;
+        employee.phoneNumber.includes(normalized)
+      );
     });
-  }, [employees, searchTerm, status]);
+  }, [employees, searchTerm]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -54,7 +49,7 @@ export default function EmployeeListPage() {
       </div>
 
       <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="flex flex-col gap-4 border-b border-slate-200 p-5 lg:flex-row lg:items-center">
+        <div className="flex flex-col gap-4 border-b border-slate-200 p-5">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
             <input
@@ -68,20 +63,6 @@ export default function EmployeeListPage() {
               className="w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             />
           </div>
-
-          <select
-            value={status}
-            onChange={(event) => {
-              setStatus(event.target.value as StatusFilter);
-              setPage(1);
-            }}
-            className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-blue-500"
-          >
-            <option value="All">All Statuses</option>
-            <option value="ACTIVE">Active</option>
-            <option value="PASSIVE">Passive</option>
-            <option value="SUSPENDED">Suspended</option>
-          </select>
         </div>
 
         <div className="overflow-x-auto">
@@ -142,7 +123,7 @@ export default function EmployeeListPage() {
             <div className="flex flex-col items-center gap-2 px-6 py-16 text-center">
               <Users className="h-8 w-8 text-slate-300" />
               <p className="font-medium text-slate-700">No employees found</p>
-              <p className="text-sm text-slate-500">Try changing your search or filters.</p>
+              <p className="text-sm text-slate-500">Try changing your search.</p>
             </div>
           )}
         </div>
@@ -152,29 +133,7 @@ export default function EmployeeListPage() {
             Showing {paginated.length} of {filtered.length} employees
           </p>
 
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setPage((current) => Math.max(1, current - 1))}
-              disabled={page === 1}
-              className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              Previous
-            </button>
-
-            <span className="px-2 text-sm font-medium text-slate-700">
-              Page {page} of {totalPages}
-            </span>
-
-            <button
-              type="button"
-              onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
-              disabled={page === totalPages}
-              className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              Next
-            </button>
-          </div>
+          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
         </div>
       </section>
     </div>

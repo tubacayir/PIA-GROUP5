@@ -13,10 +13,12 @@ import invoice_insight_api.shared.enums.RecommendationStatus;
 import invoice_insight_api.shared.enums.Status;
 import invoice_insight_api.shared.exception.ResourceNotFoundException;
 import invoice_insight_api.shared.model.Customers;
+import invoice_insight_api.shared.model.Organization;
 import invoice_insight_api.shared.model.Subscription;
 import invoice_insight_api.shared.model.TariffPackage;
 import invoice_insight_api.shared.model.UsageSummary;
 import invoice_insight_api.shared.repository.CustomerRepository;
+import invoice_insight_api.shared.repository.OrganizationRepository;
 import invoice_insight_api.shared.repository.RecommendationRepository;
 import invoice_insight_api.shared.repository.SubscriptionRepository;
 import invoice_insight_api.shared.repository.TariffPackageRepository;
@@ -46,6 +48,7 @@ public class CorporateService {
     private final TariffPackageRepository tariffPackageRepository;
     private final UsageSummaryRepository usageSummaryRepository;
     private final RecommendationRepository recommendationRepository;
+    private final OrganizationRepository organizationRepository;
     private final InvoiceService invoiceService;
 
     public List<EmployeeResponse> getEmployees(Long organizationId) {
@@ -131,10 +134,17 @@ public class CorporateService {
                 .mapToLong(UsageSummary::getUsedSms)
                 .sum();
 
-        long subscriptionsExceedingLimits = buildUsageRankings(organizationId).exceedingLimits().size();
+        long subscriptionsExceedingLimits = buildUsageRankings(organizationId, false).exceedingLimits().size();
 
         long recommendationOpportunities = recommendationRepository
                 .countBySubscription_Organization_IdAndStatus(organizationId, RecommendationStatus.ACTIVE);
+
+        Organization organization = organizationRepository.findById(organizationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Organizasyon bulunamadı"));
+
+        PackageResponse currentCorporatePackage = organization.getCorporatePackage() != null
+                ? toPackageResponse(organization.getCorporatePackage())
+                : null;
 
         return new DashboardSummaryResponse(
                 totalEmployees,
@@ -144,7 +154,8 @@ public class CorporateService {
                 totalVoiceMinutes,
                 totalSmsUsage,
                 subscriptionsExceedingLimits,
-                recommendationOpportunities
+                recommendationOpportunities,
+                currentCorporatePackage
         );
     }
 
@@ -166,15 +177,16 @@ public class CorporateService {
                 .toList();
     }
 
-    public UsageAnalyticsResponse getUsageAnalytics(Long organizationId) {
-        return buildUsageRankings(organizationId);
+    public UsageAnalyticsResponse getUsageAnalytics(Long organizationId, boolean overOnly) {
+        return buildUsageRankings(organizationId, overOnly);
     }
 
-    private UsageAnalyticsResponse buildUsageRankings(Long organizationId) {
+    private UsageAnalyticsResponse buildUsageRankings(Long organizationId, boolean overOnly) {
         Map<Long, UsageSummary> latestUsageBySubscriptionId = latestUsageBySubscription(organizationId);
 
         List<UsageRankingItem> items = latestUsageBySubscriptionId.values().stream()
                 .map(this::toUsageRankingItem)
+                .filter(item -> !overOnly || exceedsAnyLimit(item))
                 .toList();
 
         List<UsageRankingItem> highestInternetConsumers = items.stream()
@@ -300,6 +312,16 @@ public class CorporateService {
                 .flatMap(this::latestCurrentUsage)
                 .orElse(null);
 
+        BigDecimal overageAmount = primarySubscription
+                .map(subscription -> invoiceService.getOverageAmountForLatestInvoice(subscription.getId()))
+                .orElse(BigDecimal.ZERO);
+
+        BigDecimal packageFee = currentPackage != null && currentPackage.monthlyFee() != null
+                ? currentPackage.monthlyFee()
+                : BigDecimal.ZERO;
+
+        BigDecimal totalWithOverage = packageFee.add(overageAmount);
+
         return new EmployeeResponse(
                 customer.getId(),
                 customer.getFirstName(),
@@ -310,7 +332,9 @@ public class CorporateService {
                 commitmentStart,
                 commitmentEnd,
                 latestInvoice,
-                currentUsage
+                currentUsage,
+                overageAmount,
+                totalWithOverage
         );
     }
 

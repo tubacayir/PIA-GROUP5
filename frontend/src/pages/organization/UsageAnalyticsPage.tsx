@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { CircleAlert, Gauge, MessageSquare, Phone, TrendingDown, Wifi } from "lucide-react";
+import { CircleAlert, MessageSquare, Phone, Wifi } from "lucide-react";
 
 import {
   Area,
@@ -70,7 +70,7 @@ function RankingCard({
 }
 
 export default function UsageAnalyticsPage() {
-  const analytics = useAsyncData(getUsageAnalytics, []);
+  const analytics = useAsyncData(() => getUsageAnalytics(true), []);
   const usageTrend = useAsyncData(getUsageTrend, []);
 
   const loading = analytics.loading || usageTrend.loading;
@@ -168,55 +168,37 @@ export default function UsageAnalyticsPage() {
         </article>
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-3">
-        <RankingCard
-          title="Highest Internet Consumers"
-          icon={Wifi}
-          items={data.highestInternetConsumers}
-          metricLabel="GB used"
-          metricValue={(item) => `${formatNumber(item.usedInternetGb)} GB`}
-        />
-
-        <RankingCard
-          title="Highest Voice Consumers"
-          icon={Phone}
-          items={data.highestVoiceConsumers}
-          metricLabel="minutes used"
-          metricValue={(item) => `${formatNumber(item.usedMinutes)} min`}
-        />
-
-        <RankingCard
-          title="Highest SMS Consumers"
-          icon={MessageSquare}
-          items={data.highestSmsConsumers}
-          metricLabel="SMS sent"
-          metricValue={(item) => `${formatNumber(item.usedSms)} SMS`}
-        />
-      </section>
-
-      <section className="grid gap-6 lg:grid-cols-2">
-        <RankingCard
-          title="Exceeding Package Limits"
-          icon={CircleAlert}
-          items={data.exceedingLimits}
-          metricLabel="internet used"
-          metricValue={(item) => `${formatNumber(item.usedInternetGb)} / ${item.internetLimitGb} GB`}
-        />
-
-        <RankingCard
-          title="Underutilized Subscriptions"
-          icon={TrendingDown}
-          items={data.underutilized}
-          metricLabel="internet used"
-          metricValue={(item) => `${formatNumber(item.usedInternetGb)} / ${item.internetLimitGb} GB`}
-        />
-      </section>
-
-      {data.exceedingLimits.length === 0 && data.underutilized.length === 0 && (
+      {data.exceedingLimits.length === 0 ? (
         <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-5 text-sm text-slate-500">
-          <Gauge className="h-5 w-5 text-slate-400" />
-          No usage anomalies detected this period.
+          <CircleAlert className="h-5 w-5 text-slate-400" />
+          Bu ay aşım yapan çalışan yok.
         </div>
+      ) : (
+        <section className="grid gap-6 lg:grid-cols-3">
+          <RankingCard
+            title="Highest Internet Consumers"
+            icon={Wifi}
+            items={data.highestInternetConsumers}
+            metricLabel="GB used"
+            metricValue={(item) => `${formatNumber(item.usedInternetGb)} / ${item.internetLimitGb} GB`}
+          />
+
+          <RankingCard
+            title="Highest Voice Consumers"
+            icon={Phone}
+            items={data.highestVoiceConsumers}
+            metricLabel="minutes used"
+            metricValue={(item) => `${formatNumber(item.usedMinutes)} / ${item.minuteLimit} min`}
+          />
+
+          <RankingCard
+            title="Highest SMS Consumers"
+            icon={MessageSquare}
+            items={data.highestSmsConsumers}
+            metricLabel="SMS sent"
+            metricValue={(item) => `${formatNumber(item.usedSms)} / ${item.smsLimit} SMS`}
+          />
+        </section>
       )}
     </div>
   );

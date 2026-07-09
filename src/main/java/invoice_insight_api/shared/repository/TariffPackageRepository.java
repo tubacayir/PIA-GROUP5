@@ -11,4 +11,6 @@ import java.util.List;
 public interface TariffPackageRepository extends JpaRepository<TariffPackage, Long> {
 
     List<TariffPackage> findByStatus(Status status);
+
+    List<TariffPackage> findByStatusOrderByInternetLimitGbAsc(Status status);
 }
