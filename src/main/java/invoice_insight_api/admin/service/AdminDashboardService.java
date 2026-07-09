@@ -16,10 +16,14 @@ import invoice_insight_api.shared.repository.OrganizationRepository;
 import invoice_insight_api.shared.repository.SubscriptionRepository;
 import invoice_insight_api.shared.repository.UsageSummaryRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static invoice_insight_api.shared.config.CacheConfig.ADMIN_DASHBOARD_CHARTS_CACHE;
+import static invoice_insight_api.shared.config.CacheConfig.ADMIN_DASHBOARD_SUMMARY_CACHE;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -44,6 +48,7 @@ public class AdminDashboardService {
     private final UsageSummaryRepository usageSummaryRepository;
     private final OrganizationRepository organizationRepository;
 
+    @Cacheable(ADMIN_DASHBOARD_SUMMARY_CACHE)
     public AdminDashboardSummaryResponse getSummary() {
         long totalCustomers = customerRepository.countByStatusNot(Status.DELETED);
         long totalSubscriptions = subscriptionRepository.count();
@@ -97,6 +102,7 @@ public class AdminDashboardService {
         );
     }
 
+    @Cacheable(ADMIN_DASHBOARD_CHARTS_CACHE)
     public AdminDashboardChartsResponse getCharts() {
         Pageable top5 = PageRequest.of(0, TOP_N);
         Pageable allPackages = PageRequest.of(0, 50);
@@ -148,13 +154,15 @@ public class AdminDashboardService {
                 .map(row -> new NameAmountItem((String) row[0], (BigDecimal) row[1]))
                 .toList();
 
-        List<NameCountItem> usageDistribution = buildUsageDistribution();
+        List<UsageSummary> latestUsagePerSubscription = latestUsageBySubscription();
+        List<NameCountItem> usageDistribution = buildUsageDistribution(latestUsagePerSubscription);
 
         List<Invoice> invoicesWithCustomerData = invoiceRepository.findAllWithSubscriptionCustomerAndPackage();
         List<NameAmountItem> invoiceAmountByAgeGroup = buildInvoiceAmountByAgeGroup(invoicesWithCustomerData);
         List<NameAmountItem> invoiceAmountByPaymentChannel = buildInvoiceAmountByPaymentChannel(invoicesWithCustomerData);
         List<NameAmountItem> invoiceAmountByDeliveryMethod = buildInvoiceAmountByDeliveryMethod(invoicesWithCustomerData);
-        List<NameAmountItem> invoiceAmountByPackageUsage = buildInvoiceAmountByPackageUsage(invoicesWithCustomerData);
+        List<NameAmountItem> invoiceAmountByPackageUsage =
+                buildInvoiceAmountByPackageUsage(invoicesWithCustomerData, latestUsagePerSubscription);
 
         List<AdminMonthlyCountPoint> latePaymentTrend = invoiceRepository.findLatePaymentMonthlyTrend().stream()
                 .map(row -> new AdminMonthlyCountPoint((Integer) row[0], (Integer) row[1], (Long) row[2]))
@@ -224,8 +232,9 @@ public class AdminDashboardService {
                 .toList();
     }
 
-    private List<NameAmountItem> buildInvoiceAmountByPackageUsage(List<Invoice> invoices) {
-        Map<Long, String> usageBucketBySubscriptionId = latestUsageBySubscription().stream()
+    private List<NameAmountItem> buildInvoiceAmountByPackageUsage(List<Invoice> invoices,
+                                                                    List<UsageSummary> latestUsagePerSubscription) {
+        Map<Long, String> usageBucketBySubscriptionId = latestUsagePerSubscription.stream()
                 .collect(Collectors.toMap(
                         usage -> usage.getSubscription().getId(),
                         this::usageBucket
@@ -280,9 +289,7 @@ public class AdminDashboardService {
         };
     }
 
-    private List<NameCountItem> buildUsageDistribution() {
-        List<UsageSummary> latest = latestUsageBySubscription();
-
+    private List<NameCountItem> buildUsageDistribution(List<UsageSummary> latest) {
         long underHalf = 0;
         long halfToFull = 0;
         long overFull = 0;

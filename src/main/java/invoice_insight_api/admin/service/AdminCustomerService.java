@@ -17,10 +17,14 @@ import invoice_insight_api.shared.exception.ResourceNotFoundException;
 import invoice_insight_api.shared.model.*;
 import invoice_insight_api.shared.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import invoice_insight_api.shared.enums.SubscriptionType;
+
+import static invoice_insight_api.shared.config.CacheConfig.ADMIN_DASHBOARD_CHARTS_CACHE;
+import static invoice_insight_api.shared.config.CacheConfig.ADMIN_DASHBOARD_SUMMARY_CACHE;
 
 
 import java.math.BigDecimal;
@@ -179,6 +183,7 @@ public class AdminCustomerService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = {ADMIN_DASHBOARD_SUMMARY_CACHE, ADMIN_DASHBOARD_CHARTS_CACHE}, allEntries = true)
     public AdminCustomerSummaryResponse createCustomer(CreateCustomerRequest request) {
         if (customerRepository.findByTcIdentityNumber(request.tcIdentityNumber()).isPresent()) {
             throw new DuplicateResourceException("Bu TC kimlik numarası zaten kayıtlı");
@@ -239,6 +244,7 @@ public class AdminCustomerService {
         return toSummary(saved, List.of(savedSubscription), LocalDate.now());
     }
     @Transactional
+    @CacheEvict(cacheNames = {ADMIN_DASHBOARD_SUMMARY_CACHE, ADMIN_DASHBOARD_CHARTS_CACHE}, allEntries = true)
     public AdminCustomerSummaryResponse updateCustomer(Long id, UpdateCustomerRequest request) {
         Customers customer = customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Müşteri bulunamadı"));
@@ -269,6 +275,7 @@ public class AdminCustomerService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = {ADMIN_DASHBOARD_SUMMARY_CACHE, ADMIN_DASHBOARD_CHARTS_CACHE}, allEntries = true)
     public void deleteCustomer(Long id) {
         Customers customer = customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Müşteri bulunamadı"));

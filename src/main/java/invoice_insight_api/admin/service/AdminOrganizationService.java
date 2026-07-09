@@ -16,6 +16,7 @@ import invoice_insight_api.shared.repository.InvoiceRepository;
 import invoice_insight_api.shared.repository.OrganizationRepository;
 import invoice_insight_api.shared.repository.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static invoice_insight_api.shared.config.CacheConfig.ADMIN_DASHBOARD_CHARTS_CACHE;
+import static invoice_insight_api.shared.config.CacheConfig.ADMIN_DASHBOARD_SUMMARY_CACHE;
 
 @Service
 @RequiredArgsConstructor
@@ -105,6 +109,7 @@ public class AdminOrganizationService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = {ADMIN_DASHBOARD_SUMMARY_CACHE, ADMIN_DASHBOARD_CHARTS_CACHE}, allEntries = true)
     public AdminOrganizationSummaryResponse createOrganization(CreateOrganizationRequest request) {
         if (organizationRepository.findByTaxIdentityNumber(request.taxIdentityNumber()).isPresent()) {
             throw new DuplicateResourceException("Bu vergi kimlik numarası zaten kayıtlı");
@@ -127,6 +132,7 @@ public class AdminOrganizationService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = {ADMIN_DASHBOARD_SUMMARY_CACHE, ADMIN_DASHBOARD_CHARTS_CACHE}, allEntries = true)
     public AdminOrganizationSummaryResponse updateOrganization(Long id, UpdateOrganizationRequest request) {
         Organization organization = organizationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Şirket bulunamadı"));
@@ -142,6 +148,7 @@ public class AdminOrganizationService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = {ADMIN_DASHBOARD_SUMMARY_CACHE, ADMIN_DASHBOARD_CHARTS_CACHE}, allEntries = true)
     public void deleteOrganization(Long id) {
         Organization organization = organizationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Şirket bulunamadı"));

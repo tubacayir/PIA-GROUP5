@@ -27,9 +27,14 @@ public interface RecommendationRepository extends JpaRepository<Recommendation, 
     // Dashboard counter used by CorporateService.getDashboardSummary.
     long countByOrganization_IdAndStatus(Long organizationId, RecommendationStatus status);
 
-    // Admin list with optional filters.
+    // Admin list with optional filters. LEFT JOIN FETCH avoids an N+1 lazy-load per row
+    // (customer/organization/currentPackage/suggestedPackage) when mapping to the response DTO.
     @Query("""
             SELECT r FROM Recommendation r
+            LEFT JOIN FETCH r.customer
+            LEFT JOIN FETCH r.organization
+            LEFT JOIN FETCH r.currentPackage
+            LEFT JOIN FETCH r.suggestedPackage
             WHERE (:status IS NULL OR r.status = :status)
               AND (:type IS NULL OR r.recommendationType = :type)
               AND (:highPriorityOnly = FALSE OR r.highPriority = TRUE)
