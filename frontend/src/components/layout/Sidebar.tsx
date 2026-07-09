@@ -5,6 +5,7 @@ import {
   LogOut,
   ReceiptText,
   ShieldCheck,
+  Sparkles,
   Users,
 } from "lucide-react";
 
@@ -30,6 +31,11 @@ const navigationItems = [
     label: "Companies",
     path: "/companies",
     icon: Building2,
+  },
+  {
+    label: "Recommendations",
+    path: "/recommendations",
+    icon: Sparkles,
   },
   {
     label: "Analytics",

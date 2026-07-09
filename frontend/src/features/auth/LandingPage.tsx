@@ -1,7 +1,16 @@
 import { ArrowRight, BarChart3, Building2, ShieldCheck, Smartphone, UserRound } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
+
+import { useAuthStore } from "./authStore";
+import { getHomePath } from "./authTypes";
 
 export default function LandingPage() {
+  const user = useAuthStore((state) => state.user);
+
+  if (user) {
+    return <Navigate to={getHomePath(user.role)} replace />;
+  }
+
   return (
     <main className="min-h-screen overflow-hidden bg-slate-950 text-white">
       <div className="absolute left-1/2 top-0 h-96 w-96 -translate-x-1/2 rounded-full bg-blue-600/20 blur-3xl" />

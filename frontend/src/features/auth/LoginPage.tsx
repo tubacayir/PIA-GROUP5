@@ -17,9 +17,9 @@ import {
 } from "react-router-dom";
 
 import { useAuthStore } from "./authStore";
-import type {
-  LoginType,
-  UserRole,
+import {
+  getHomePath,
+  type LoginType,
 } from "./authTypes";
 
 interface LoginTab {
@@ -65,19 +65,6 @@ const TABS: LoginTab[] = [
     icon: ShieldCheck,
   },
 ];
-
-const getHomePath = (role: UserRole) => {
-  switch (role) {
-    case "SYSTEM_ADMIN":
-      return "/dashboard";
-
-    case "ORGANIZATION_ADMIN":
-      return "/organization/dashboard";
-
-    case "CUSTOMER":
-      return "/customer/profile";
-  }
-};
 
 function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -125,7 +112,12 @@ export default function LoginPage({ variant = "public" }: LoginPageProps) {
     (item) => item.key === activeTab
   )!;
 
-  if (user) {
+  const matchesVariant =
+    variant === "admin"
+      ? user?.role === "SYSTEM_ADMIN"
+      : user && user.role !== "SYSTEM_ADMIN";
+
+  if (user && matchesVariant) {
     return (
       <Navigate
         to={getHomePath(user.role)}

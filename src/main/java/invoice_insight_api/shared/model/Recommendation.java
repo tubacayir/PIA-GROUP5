@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -21,12 +22,20 @@ public class Recommendation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "subscription_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id")
+    private Customers customer;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "organization_id")
+    private Organization organization;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "subscription_id")
     private Subscription subscription;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "current_package_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "current_package_id")
     private TariffPackage currentPackage;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -37,6 +46,9 @@ public class Recommendation {
     @Column(name = "recommendation_type", nullable = false, length = 30)
     private RecommendationType recommendationType;
 
+    @Column(name = "is_high_priority", nullable = false)
+    private boolean highPriority = false;
+
     @Column(nullable = false, length = 1000)
     private String reason;
 
@@ -46,10 +58,31 @@ public class Recommendation {
     @Column(name = "confidence_score", nullable = false, precision = 5, scale = 2)
     private BigDecimal confidenceScore;
 
+    @Column(name = "average_usage_ratio", precision = 6, scale = 2)
+    private BigDecimal averageUsageRatio;
+
+    @Column(name = "consecutive_overage_months")
+    private Integer consecutiveOverageMonths;
+
+    @Column(name = "calculation_period_start")
+    private LocalDate calculationPeriodStart;
+
+    @Column(name = "calculation_period_end")
+    private LocalDate calculationPeriodEnd;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private RecommendationStatus status = RecommendationStatus.ACTIVE;
+    private RecommendationStatus status = RecommendationStatus.PENDING;
+
+    @Column(name = "reviewed_by")
+    private Long reviewedBy;
+
+    @Column(name = "reviewed_at")
+    private LocalDateTime reviewedAt;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 }

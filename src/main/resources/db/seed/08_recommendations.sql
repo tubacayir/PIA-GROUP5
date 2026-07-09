@@ -12051,3 +12051,24 @@ INSERT INTO recommendations (id, confidence_score, created_at, expected_saving_a
   (12000, 0.84, '2026-06-09 12:00:00.000000', 0, 'Ortalama kullanim, paket limitinin yaklasik %80''ine ulasiyor ve aylik ortalama 419.45 TRY asim ucreti odeniyor; BX-100 paketine gecis asim ucretlerini azaltabilir.', 'UPGRADE_PACKAGE', 'DISMISSED', 5, 12000, 6);
 
 SELECT setval(pg_get_serial_sequence('recommendations', 'id'), (SELECT MAX(id) FROM recommendations));
+
+-- Bring legacy seed rows (old subscription-scoped, ACTIVE/APPLIED/DISMISSED/EXPIRED schema)
+-- in line with the approval-workflow schema introduced by
+-- db/migration/03_extend_recommendations_for_approval_workflow.sql. Kept here so a fresh
+-- reseed on a new schema is self-consistent without also requiring that migration to run.
+UPDATE recommendations r
+SET customer_id = s.customer_id,
+    organization_id = s.organization_id
+FROM subscriptions s
+WHERE r.subscription_id = s.id
+  AND r.customer_id IS NULL;
+
+UPDATE recommendations SET status = 'PENDING'  WHERE status IN ('ACTIVE', 'EXPIRED');
+UPDATE recommendations SET status = 'APPROVED' WHERE status = 'APPLIED';
+UPDATE recommendations SET status = 'REJECTED' WHERE status = 'DISMISSED';
+
+UPDATE recommendations SET recommendation_type = 'UPGRADE'   WHERE recommendation_type = 'UPGRADE_PACKAGE';
+UPDATE recommendations SET recommendation_type = 'DOWNGRADE' WHERE recommendation_type = 'DOWNGRADE_PACKAGE';
+UPDATE recommendations SET recommendation_type = 'NO_CHANGE' WHERE recommendation_type IN ('KEEP_CURRENT_PACKAGE', 'REVIEW_USAGE');
+
+UPDATE recommendations SET updated_at = created_at WHERE updated_at IS NULL;

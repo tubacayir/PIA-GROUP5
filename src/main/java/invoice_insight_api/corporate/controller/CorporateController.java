@@ -14,7 +14,6 @@ import invoice_insight_api.corporate.dto.UpdateSubscriptionPackageRequest;
 import invoice_insight_api.corporate.dto.UpdateSubscriptionStatusRequest;
 import invoice_insight_api.corporate.dto.UsageAnalyticsResponse;
 import invoice_insight_api.corporate.service.CorporateService;
-import invoice_insight_api.shared.enums.RecommendationType;
 import invoice_insight_api.shared.service.InvoiceService;
 import invoice_insight_api.shared.service.RecommendationService;
 import jakarta.validation.Valid;
@@ -119,10 +118,8 @@ public class CorporateController {
     }
 
     @GetMapping("/recommendations")
-    public ResponseEntity<List<RecommendationResponse>> getRecommendations(
-            @RequestParam RecommendationType type,
-            Authentication authentication) {
-        return ResponseEntity.ok(recommendationService.getRecommendationsForOrganization(organizationId(authentication), type));
+    public ResponseEntity<List<RecommendationResponse>> getRecommendations(Authentication authentication) {
+        return ResponseEntity.ok(recommendationService.getRecommendationsForOrganization(organizationId(authentication)));
     }
 
     private Long organizationId(Authentication authentication) {

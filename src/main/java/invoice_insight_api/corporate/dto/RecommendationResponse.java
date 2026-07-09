@@ -7,8 +7,6 @@ import java.time.LocalDateTime;
 
 public record RecommendationResponse(
         Long id,
-        String employeeName,
-        String phoneNumber,
         PackageResponse currentPackage,
         PackageResponse suggestedPackage,
         String recommendationType,
@@ -16,6 +14,8 @@ public record RecommendationResponse(
         BigDecimal expectedSavingAmount,
         BigDecimal confidenceScore,
         String status,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        boolean isHighPriority,
+        BigDecimal averageUsageRatio
 ) {
 }

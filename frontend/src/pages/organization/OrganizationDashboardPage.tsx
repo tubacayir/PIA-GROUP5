@@ -57,7 +57,7 @@ export default function OrganizationDashboardPage() {
   const summary = useAsyncData(getDashboardSummary, []);
   const usageTrend = useAsyncData(getUsageTrend, []);
   const invoiceTrend = useAsyncData(getInvoiceTrend, []);
-  const recommendations = useAsyncData(() => getRecommendations("UPGRADE_PACKAGE"), []);
+  const recommendations = useAsyncData(getRecommendations, []);
 
   const loading = summary.loading || usageTrend.loading || invoiceTrend.loading;
   const error = summary.error ?? usageTrend.error ?? invoiceTrend.error;
@@ -196,20 +196,47 @@ export default function OrganizationDashboardPage() {
           </div>
 
           {topRecommendation && (
-            <div className="mt-5 rounded-xl border border-violet-100 bg-violet-50 p-4">
+            <div
+              className={`mt-5 rounded-xl border p-4 ${
+                topRecommendation.isHighPriority
+                  ? "border-red-200 bg-red-50"
+                  : "border-violet-100 bg-violet-50"
+              }`}
+            >
               <div className="flex items-start gap-3">
-                <div className="rounded-lg bg-white p-2 text-violet-600 shadow-sm">
+                <div
+                  className={`rounded-lg bg-white p-2 shadow-sm ${
+                    topRecommendation.isHighPriority ? "text-red-600" : "text-violet-600"
+                  }`}
+                >
                   <Sparkles className="h-4 w-4" />
                 </div>
 
                 <div>
-                  <p className="text-sm font-semibold text-slate-900">
-                    {topRecommendation.suggestedPackage
-                      ? `Consider upgrading to ${topRecommendation.suggestedPackage.packageName}`
-                      : "New package recommendation"}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold text-slate-900">Company Plan Recommendation</p>
+                    {topRecommendation.isHighPriority && (
+                      <span className="rounded-full bg-red-600 px-2 py-0.5 text-[10px] font-semibold text-white">
+                        High Priority
+                      </span>
+                    )}
+                  </div>
+
+                  {topRecommendation.currentPackage && topRecommendation.suggestedPackage && (
+                    <p className="mt-1 text-xs font-semibold text-slate-700">
+                      {topRecommendation.currentPackage.packageName} &rarr; {topRecommendation.suggestedPackage.packageName}
+                    </p>
+                  )}
+
                   <p className="mt-1 text-xs text-slate-600">{topRecommendation.reason}</p>
-                  {topRecommendation.expectedSavingAmount != null && (
+
+                  {topRecommendation.averageUsageRatio != null && (
+                    <p className="mt-1 text-xs text-slate-500">
+                      Average usage across lines: %{topRecommendation.averageUsageRatio}
+                    </p>
+                  )}
+
+                  {topRecommendation.expectedSavingAmount != null && topRecommendation.expectedSavingAmount > 0 && (
                     <p className="mt-1 text-xs font-medium text-emerald-700">
                       Est. saving {formatCurrency(topRecommendation.expectedSavingAmount)}
                     </p>

@@ -133,7 +133,7 @@ public class CorporateService {
         long subscriptionsExceedingLimits = buildUsageRankings(organizationId, false).exceedingLimits().size();
 
         long recommendationOpportunities = recommendationRepository
-                .countBySubscription_Organization_IdAndStatus(organizationId, RecommendationStatus.ACTIVE);
+                .countByOrganization_IdAndStatus(organizationId, RecommendationStatus.PENDING);
 
         Organization organization = organizationRepository.findById(organizationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Organizasyon bulunamadı"));

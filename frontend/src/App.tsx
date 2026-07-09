@@ -16,6 +16,7 @@ import CompanyListPage from "./pages/CompanyListPage";
 import CompanyDetailPage from "./pages/CompanyDetailPage";
 import AdminUsersPage from "./pages/AdminUsersPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
+import RecommendationsPage from "./pages/RecommendationsPage";
 import CustomerProfilePage from "./pages/CustomerProfilePage";
 
 import OrganizationDashboardPage from "./pages/organization/OrganizationDashboardPage";
@@ -117,6 +118,11 @@ function App() {
               <Route
                 path="/analytics"
                 element={<AnalyticsPage />}
+              />
+
+              <Route
+                path="/recommendations"
+                element={<RecommendationsPage />}
               />
 
             </Route>

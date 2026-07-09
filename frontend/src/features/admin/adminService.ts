@@ -7,12 +7,15 @@ import type {
   AdminOrganizationDetail,
   AdminOrganizationSummary,
   AdminPackageInfo,
+  AdminRecommendation,
   AdminUserAccount,
+  BatchRecalculationSummary,
   CreateAdminUserRequest,
   CreateCustomerRequest,
   CreateOrganizationRequest,
   CustomerFilters,
   OrganizationFilters,
+  RecommendationFilters,
   UpdateCustomerRequest,
   UpdateOrganizationRequest,
 } from "./adminTypes";
@@ -80,3 +83,15 @@ export const getAdmins = () =>
 
 export const createAdmin = (request: CreateAdminUserRequest) =>
   unwrap<AdminUserAccount>(api.post("/admin/admins", request));
+
+export const getRecommendations = (filters: RecommendationFilters = {}) =>
+  unwrap<AdminRecommendation[]>(api.get("/admin/recommendations", { params: filters }));
+
+export const approveRecommendation = (id: number) =>
+  unwrap<AdminRecommendation>(api.post(`/admin/recommendations/${id}/approve`));
+
+export const rejectRecommendation = (id: number) =>
+  unwrap<AdminRecommendation>(api.post(`/admin/recommendations/${id}/reject`));
+
+export const recalculateAllRecommendations = () =>
+  unwrap<BatchRecalculationSummary>(api.post("/admin/recommendations/recalculate"));

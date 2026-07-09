@@ -62,6 +62,7 @@ export default function CustomerProfilePage() {
   const recommendations = useAsyncData(getRecommendations, []);
 
   const [panelIndex, setPanelIndex] = useState(0);
+  const [upgradeRequested, setUpgradeRequested] = useState(false);
 
   const loading = summary.loading || usage.loading || invoices.loading;
 
@@ -425,35 +426,78 @@ export default function CustomerProfilePage() {
             </div>
           </article>
 
-          <article className="rounded-2xl border border-violet-100 bg-violet-50 p-5">
-            <div className="flex items-start gap-3">
-              <div className="rounded-xl bg-white p-2.5 text-violet-600 shadow-sm">
-                <Sparkles className="h-5 w-5" />
-              </div>
+          {activeRecommendation && (
+            <article
+              className={`rounded-2xl border p-5 ${
+                activeRecommendation.isHighPriority
+                  ? "border-red-200 bg-red-50"
+                  : "border-violet-100 bg-violet-50"
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <div
+                  className={`rounded-xl bg-white p-2.5 shadow-sm ${
+                    activeRecommendation.isHighPriority ? "text-red-600" : "text-violet-600"
+                  }`}
+                >
+                  <Sparkles className="h-5 w-5" />
+                </div>
 
-              <div>
-                <p className="font-bold text-slate-950">Smart Insights</p>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <p className="font-bold text-slate-950">Package Recommendation</p>
+                    {activeRecommendation.isHighPriority && (
+                      <span className="rounded-full bg-red-600 px-2 py-0.5 text-[11px] font-semibold text-white">
+                        High Priority
+                      </span>
+                    )}
+                  </div>
 
-                {activeRecommendation ? (
-                  <>
-                    <p className="mt-1 text-sm leading-6 text-slate-600">
-                      {activeRecommendation.suggestedPackage
-                        ? `${activeRecommendation.suggestedPackage.packageName} paketine geçmenizi öneriyoruz.`
-                        : "Paketiniz için bir önerimiz var."}
+                  {activeRecommendation.currentPackage && activeRecommendation.suggestedPackage && (
+                    <p className="mt-2 text-sm font-semibold text-slate-900">
+                      {activeRecommendation.currentPackage.packageName} &rarr;{" "}
+                      {activeRecommendation.suggestedPackage.packageName}
                     </p>
+                  )}
 
-                    <p className="mt-1 text-xs text-slate-500">
-                      {activeRecommendation.reason}
-                    </p>
-                  </>
-                ) : (
                   <p className="mt-1 text-sm leading-6 text-slate-600">
-                    Package recommendations and anomaly results will appear here.
+                    {activeRecommendation.reason}
                   </p>
-                )}
+
+                  {activeRecommendation.averageUsageRatio != null && (
+                    <p className="mt-2 text-xs text-slate-500">
+                      Ortalama kullanımınız kotanın %{activeRecommendation.averageUsageRatio}&apos;i seviyesinde.
+                    </p>
+                  )}
+
+                  {activeRecommendation.expectedSavingAmount != null &&
+                    activeRecommendation.expectedSavingAmount > 0 && (
+                      <p className="mt-1 text-xs font-semibold text-emerald-700">
+                        Tahmini aylık tasarruf: {formatCurrency(activeRecommendation.expectedSavingAmount)}
+                      </p>
+                    )}
+
+                  {activeRecommendation.recommendationType === "UPGRADE" && (
+                    <div className="mt-3">
+                      {upgradeRequested ? (
+                        <p className="text-sm font-medium text-emerald-700">
+                          Talebiniz alındı, ekibimiz sizinle iletişime geçecek.
+                        </p>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setUpgradeRequested(true)}
+                          className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+                        >
+                          Upgrade Now
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          </article>
+            </article>
+          )}
         </section>
 
         <footer className="flex items-center justify-center border-t border-slate-200 py-5 text-xs text-slate-400">

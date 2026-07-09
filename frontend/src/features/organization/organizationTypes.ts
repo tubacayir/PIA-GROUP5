@@ -71,8 +71,6 @@ export interface DashboardSummary {
 
 export interface Recommendation {
   id: number;
-  employeeName: string;
-  phoneNumber: string;
   currentPackage: PackageInfo | null;
   suggestedPackage: PackageInfo | null;
   recommendationType: string;
@@ -81,6 +79,8 @@ export interface Recommendation {
   confidenceScore: number;
   status: string;
   createdAt: string;
+  isHighPriority: boolean;
+  averageUsageRatio: number | null;
 }
 
 export interface MonthlyUsageTrendPoint {

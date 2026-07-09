@@ -46,4 +46,6 @@ export interface Recommendation {
   confidenceScore: number;
   status: string;
   createdAt: string;
+  isHighPriority: boolean;
+  averageUsageRatio: number | null;
 }

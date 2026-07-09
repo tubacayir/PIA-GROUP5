@@ -27,3 +27,16 @@ export interface LoginResponse {
   tokenType: string;
   user: AuthUser;
 }
+
+export const getHomePath = (role: UserRole) => {
+  switch (role) {
+    case "SYSTEM_ADMIN":
+      return "/dashboard";
+
+    case "ORGANIZATION_ADMIN":
+      return "/organization/dashboard";
+
+    case "CUSTOMER":
+      return "/customer/profile";
+  }
+};

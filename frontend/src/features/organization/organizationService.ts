@@ -55,8 +55,8 @@ export const getPackages = () =>
 export const getUsageAnalytics = (overOnly = false) =>
   unwrap<UsageAnalytics>(api.get("/corporate/usage-analytics", { params: { overOnly } }));
 
-export const getRecommendations = (type: string) =>
-  unwrap<Recommendation[]>(api.get("/corporate/recommendations", { params: { type } }));
+export const getRecommendations = () =>
+  unwrap<Recommendation[]>(api.get("/corporate/recommendations"));
 
 export const getInvoices = () =>
   unwrap<CorporateInvoiceSummary[]>(api.get("/corporate/invoices"));

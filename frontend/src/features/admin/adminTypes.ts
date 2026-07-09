@@ -271,3 +271,43 @@ export interface CreateAdminUserRequest {
   fullName: string;
   canCreateInvoices: boolean;
 }
+
+export type RecommendationStatus = "PENDING" | "APPROVED" | "REJECTED";
+export type RecommendationType = "UPGRADE" | "DOWNGRADE" | "NO_CHANGE";
+
+export interface AdminRecommendation {
+  id: number;
+  customerName: string | null;
+  organizationName: string | null;
+  currentPackage: AdminPackageInfo | null;
+  suggestedPackage: AdminPackageInfo | null;
+  recommendationType: RecommendationType;
+  isHighPriority: boolean;
+  averageUsageRatio: number | null;
+  consecutiveOverageMonths: number | null;
+  reason: string;
+  expectedSavingAmount: number | null;
+  confidenceScore: number;
+  status: RecommendationStatus;
+  calculationPeriodStart: string | null;
+  calculationPeriodEnd: string | null;
+  reviewedBy: number | null;
+  reviewedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RecommendationFilters {
+  status?: RecommendationStatus;
+  type?: RecommendationType;
+  highPriorityOnly?: boolean;
+}
+
+export interface BatchRecalculationSummary {
+  customersProcessed: number;
+  organizationsProcessed: number;
+  upgraded: number;
+  downgraded: number;
+  noChange: number;
+  highPriority: number;
+}

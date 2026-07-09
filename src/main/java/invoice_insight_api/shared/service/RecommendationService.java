@@ -3,8 +3,8 @@ package invoice_insight_api.shared.service;
 import invoice_insight_api.corporate.dto.RecommendationResponse;
 import invoice_insight_api.shared.dto.PackageResponse;
 import invoice_insight_api.shared.enums.RecommendationStatus;
-import invoice_insight_api.shared.enums.RecommendationType;
-import invoice_insight_api.shared.model.*;
+import invoice_insight_api.shared.model.Recommendation;
+import invoice_insight_api.shared.model.TariffPackage;
 import invoice_insight_api.shared.repository.RecommendationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,19 +21,18 @@ public class RecommendationService {
 
     public List<invoice_insight_api.shared.dto.RecommendationResponse> getRecommendationsForCustomer(Long customerId) {
         return recommendationRepository
-                .findBySubscription_Customer_IdAndStatusOrderByCreatedAtDesc(customerId, RecommendationStatus.ACTIVE)
-                .stream()
+                .findByCustomer_IdAndStatus(customerId, RecommendationStatus.APPROVED)
                 .map(this::toResponse)
-                .toList();
+                .map(List::of)
+                .orElse(List.of());
     }
 
-    public List<RecommendationResponse> getRecommendationsForOrganization(Long organizationId, RecommendationType type) {
+    public List<RecommendationResponse> getRecommendationsForOrganization(Long organizationId) {
         return recommendationRepository
-                .findBySubscription_Organization_IdAndRecommendationTypeAndStatusOrderByConfidenceScoreDesc(
-                        organizationId, type, RecommendationStatus.ACTIVE)
-                .stream()
+                .findByOrganization_IdAndStatus(organizationId, RecommendationStatus.APPROVED)
                 .map(this::toOrganizationResponse)
-                .toList();
+                .map(List::of)
+                .orElse(List.of());
     }
 
     private invoice_insight_api.shared.dto.RecommendationResponse toResponse(Recommendation recommendation) {
@@ -46,18 +45,15 @@ public class RecommendationService {
                 recommendation.getExpectedSavingAmount(),
                 recommendation.getConfidenceScore(),
                 recommendation.getStatus().name(),
-                recommendation.getCreatedAt()
+                recommendation.getCreatedAt(),
+                recommendation.isHighPriority(),
+                recommendation.getAverageUsageRatio()
         );
     }
 
     private RecommendationResponse toOrganizationResponse(Recommendation recommendation) {
-        Subscription subscription = recommendation.getSubscription();
-        Customers customer = subscription.getCustomer();
-
         return new RecommendationResponse(
                 recommendation.getId(),
-                customer.getFirstName() + " " + customer.getLastName(),
-                subscription.getPhoneNumber(),
                 toPackageResponse(recommendation.getCurrentPackage()),
                 toPackageResponse(recommendation.getSuggestedPackage()),
                 recommendation.getRecommendationType().name(),
@@ -65,7 +61,9 @@ public class RecommendationService {
                 recommendation.getExpectedSavingAmount(),
                 recommendation.getConfidenceScore(),
                 recommendation.getStatus().name(),
-                recommendation.getCreatedAt()
+                recommendation.getCreatedAt(),
+                recommendation.isHighPriority(),
+                recommendation.getAverageUsageRatio()
         );
     }
 
