@@ -49,6 +49,10 @@ export interface AdminDashboardCharts {
   topPackages: NameCountItem[];
   topCompanies: NameAmountItem[];
   usageDistribution: NameCountItem[];
+  invoiceAmountByAgeGroup: NameAmountItem[];
+  invoiceAmountByPaymentChannel: NameAmountItem[];
+  invoiceAmountByDeliveryMethod: NameAmountItem[];
+  invoiceAmountByPackageUsage: NameAmountItem[];
   latePaymentTrend: MonthlyCountPoint[];
 }
 

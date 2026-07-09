@@ -2,6 +2,7 @@ import NameCountBarCard from "../components/dashboard/NameCountBarCard";
 import RankedAmountListCard from "../components/dashboard/RankedAmountListCard";
 import MonthlyAmountBarCard from "../components/dashboard/MonthlyAmountBarCard";
 import MonthlyCountAreaCard from "../components/dashboard/MonthlyCountAreaCard";
+import TurkeyCitiesMapCard from "../components/dashboard/TurkeyCitiesMapCard";
 import { ErrorState, LoadingState } from "../components/organization/AsyncStates";
 
 import { useAsyncData } from "../features/admin/useAsyncData";
@@ -70,12 +71,11 @@ export default function AnalyticsPage() {
           barColor="#7c3aed"
         />
 
-        <NameCountBarCard
+        <TurkeyCitiesMapCard
           eyebrow="Geography"
           title="Top Cities"
-          subtitle="Customers by city"
+          subtitle="Customers by city shown on Türkiye map"
           data={chartData.topCities}
-          barColor="#16a34a"
         />
 
         <NameCountBarCard
@@ -127,6 +127,50 @@ export default function AnalyticsPage() {
           subtitle="Invoices paid after their due date"
           data={latePaymentPoints}
         />
+      </section>
+
+      <section className="mt-7">
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-600">New Analysis</p>
+          <h2 className="mt-2 text-2xl font-bold text-slate-950">Invoice-Based Customer Analytics</h2>
+          <p className="mt-1 text-sm text-slate-500">
+            Total billed amount segmented by customer age, payment behavior, invoice delivery and package utilization.
+          </p>
+        </div>
+
+        <div className="mt-5 grid gap-6 lg:grid-cols-2 xl:grid-cols-4">
+          <RankedAmountListCard
+            eyebrow="Age"
+            title="Invoice Amount by Age"
+            subtitle="Total invoice value by customer age group"
+            data={chartData.invoiceAmountByAgeGroup}
+            formatAmount={formatCurrency}
+          />
+
+          <RankedAmountListCard
+            eyebrow="Payment"
+            title="Invoice Amount by Channel"
+            subtitle="Total invoice value by payment channel"
+            data={chartData.invoiceAmountByPaymentChannel}
+            formatAmount={formatCurrency}
+          />
+
+          <RankedAmountListCard
+            eyebrow="Delivery"
+            title="Invoice Amount by Delivery"
+            subtitle="Digital and paper invoice value comparison"
+            data={chartData.invoiceAmountByDeliveryMethod}
+            formatAmount={formatCurrency}
+          />
+
+          <RankedAmountListCard
+            eyebrow="Usage"
+            title="Invoice Amount by Usage"
+            subtitle="Total invoice value by package utilization"
+            data={chartData.invoiceAmountByPackageUsage}
+            formatAmount={formatCurrency}
+          />
+        </div>
       </section>
     </div>
   );

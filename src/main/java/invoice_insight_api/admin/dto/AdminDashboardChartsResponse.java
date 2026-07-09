@@ -16,6 +16,10 @@ public record AdminDashboardChartsResponse(
         List<NameCountItem> topPackages,
         List<NameAmountItem> topCompanies,
         List<NameCountItem> usageDistribution,
+        List<NameAmountItem> invoiceAmountByAgeGroup,
+        List<NameAmountItem> invoiceAmountByPaymentChannel,
+        List<NameAmountItem> invoiceAmountByDeliveryMethod,
+        List<NameAmountItem> invoiceAmountByPackageUsage,
         List<AdminMonthlyCountPoint> latePaymentTrend
 ) {
 }

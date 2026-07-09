@@ -65,4 +65,10 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
             "WHERE s.organization IS NOT NULL GROUP BY s.organization.id, s.organization.name " +
             "ORDER BY SUM(i.totalAmount) DESC")
     List<Object[]> findTopCompaniesByBilledAmount(Pageable pageable);
+
+    @Query("SELECT i FROM Invoice i " +
+            "JOIN FETCH i.subscription s " +
+            "JOIN FETCH s.customers " +
+            "JOIN FETCH s.tariffPackage")
+    List<Invoice> findAllWithSubscriptionCustomerAndPackage();
 }

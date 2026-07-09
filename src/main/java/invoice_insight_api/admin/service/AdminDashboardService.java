@@ -8,6 +8,7 @@ import invoice_insight_api.admin.dto.NameAmountItem;
 import invoice_insight_api.admin.dto.NameCountItem;
 import invoice_insight_api.shared.enums.Status;
 import invoice_insight_api.shared.enums.SubscriptionType;
+import invoice_insight_api.shared.model.Invoice;
 import invoice_insight_api.shared.model.UsageSummary;
 import invoice_insight_api.shared.repository.CustomerRepository;
 import invoice_insight_api.shared.repository.InvoiceRepository;
@@ -25,6 +26,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -98,7 +100,7 @@ public class AdminDashboardService {
     public AdminDashboardChartsResponse getCharts() {
         Pageable top5 = PageRequest.of(0, TOP_N);
         Pageable allPackages = PageRequest.of(0, 50);
-        Pageable allCities = PageRequest.of(0, 10);
+        Pageable allCities = PageRequest.of(0, 81);
 
         List<AdminMonthlyRevenuePoint> monthlyRevenueTrend = invoiceRepository.findMonthlyRevenueTrend().stream()
                 .map(row -> new AdminMonthlyRevenuePoint((Integer) row[0], (Integer) row[1], (BigDecimal) row[2]))
@@ -133,7 +135,7 @@ public class AdminDashboardService {
                 .toList();
 
         List<NameCountItem> topCities = customerRepository.countGroupedByCity(allCities).stream()
-                .map(row -> new NameCountItem((String) row[0], (Long) row[1]))
+                .map(row -> new NameCountItem(displayCityName((String) row[0]), (Long) row[1]))
                 .toList();
 
         List<NameCountItem> genderDistribution = customerRepository.countGroupedByGender().stream()
@@ -147,6 +149,12 @@ public class AdminDashboardService {
                 .toList();
 
         List<NameCountItem> usageDistribution = buildUsageDistribution();
+
+        List<Invoice> invoicesWithCustomerData = invoiceRepository.findAllWithSubscriptionCustomerAndPackage();
+        List<NameAmountItem> invoiceAmountByAgeGroup = buildInvoiceAmountByAgeGroup(invoicesWithCustomerData);
+        List<NameAmountItem> invoiceAmountByPaymentChannel = buildInvoiceAmountByPaymentChannel(invoicesWithCustomerData);
+        List<NameAmountItem> invoiceAmountByDeliveryMethod = buildInvoiceAmountByDeliveryMethod(invoicesWithCustomerData);
+        List<NameAmountItem> invoiceAmountByPackageUsage = buildInvoiceAmountByPackageUsage(invoicesWithCustomerData);
 
         List<AdminMonthlyCountPoint> latePaymentTrend = invoiceRepository.findLatePaymentMonthlyTrend().stream()
                 .map(row -> new AdminMonthlyCountPoint((Integer) row[0], (Integer) row[1], (Long) row[2]))
@@ -166,8 +174,75 @@ public class AdminDashboardService {
                 topPackages,
                 topCompanies,
                 usageDistribution,
+                invoiceAmountByAgeGroup,
+                invoiceAmountByPaymentChannel,
+                invoiceAmountByDeliveryMethod,
+                invoiceAmountByPackageUsage,
                 latePaymentTrend
         );
+    }
+
+    private List<NameAmountItem> buildInvoiceAmountByAgeGroup(List<Invoice> invoices) {
+        LocalDate today = LocalDate.now();
+        Map<String, BigDecimal> buckets = new LinkedHashMap<>();
+        List.of("18-25", "26-35", "36-45", "46-55", "56+").forEach(bucket -> buckets.put(bucket, BigDecimal.ZERO));
+
+        for (Invoice invoice : invoices) {
+            int age = Period.between(invoice.getSubscription().getCustomers().getBirthDate(), today).getYears();
+            String bucket = ageBucket(age);
+            buckets.put(bucket, buckets.get(bucket).add(invoice.getTotalAmount()));
+        }
+
+        return buckets.entrySet().stream()
+                .map(entry -> new NameAmountItem(entry.getKey(), entry.getValue()))
+                .toList();
+    }
+
+    private List<NameAmountItem> buildInvoiceAmountByPaymentChannel(List<Invoice> invoices) {
+        return invoices.stream()
+                .collect(Collectors.groupingBy(
+                        invoice -> invoice.getPaymentChannel() == null ? "No Payment Channel" : invoice.getPaymentChannel().name(),
+                        Collectors.reducing(BigDecimal.ZERO, Invoice::getTotalAmount, BigDecimal::add)
+                ))
+                .entrySet()
+                .stream()
+                .map(entry -> new NameAmountItem(entry.getKey(), entry.getValue()))
+                .sorted(Comparator.comparing(NameAmountItem::amount).reversed())
+                .toList();
+    }
+
+    private List<NameAmountItem> buildInvoiceAmountByDeliveryMethod(List<Invoice> invoices) {
+        return invoices.stream()
+                .collect(Collectors.groupingBy(
+                        invoice -> invoice.getDeliveryMethod() == null ? "Unknown" : invoice.getDeliveryMethod().name(),
+                        Collectors.reducing(BigDecimal.ZERO, Invoice::getTotalAmount, BigDecimal::add)
+                ))
+                .entrySet()
+                .stream()
+                .map(entry -> new NameAmountItem(entry.getKey(), entry.getValue()))
+                .sorted(Comparator.comparing(NameAmountItem::amount).reversed())
+                .toList();
+    }
+
+    private List<NameAmountItem> buildInvoiceAmountByPackageUsage(List<Invoice> invoices) {
+        Map<Long, String> usageBucketBySubscriptionId = latestUsageBySubscription().stream()
+                .collect(Collectors.toMap(
+                        usage -> usage.getSubscription().getId(),
+                        this::usageBucket
+                ));
+
+        Map<String, BigDecimal> buckets = new LinkedHashMap<>();
+        List.of("Under 50%", "50-100%", "Over 100%", "No Usage Data")
+                .forEach(bucket -> buckets.put(bucket, BigDecimal.ZERO));
+
+        for (Invoice invoice : invoices) {
+            String bucket = usageBucketBySubscriptionId.getOrDefault(invoice.getSubscription().getId(), "No Usage Data");
+            buckets.put(bucket, buckets.get(bucket).add(invoice.getTotalAmount()));
+        }
+
+        return buckets.entrySet().stream()
+                .map(entry -> new NameAmountItem(entry.getKey(), entry.getValue()))
+                .toList();
     }
 
     private List<NameCountItem> buildAgeDistribution() {
@@ -190,6 +265,21 @@ public class AdminDashboardService {
         return "56+";
     }
 
+    private String displayCityName(String city) {
+        if (city == null) {
+            return "Unknown";
+        }
+
+        return switch (city) {
+            case "Istanbul" -> "İstanbul";
+            case "Izmir" -> "İzmir";
+            case "Eskisehir" -> "Eskişehir";
+            case "Sanliurfa" -> "Şanlıurfa";
+            case "Diyarbakir" -> "Diyarbakır";
+            default -> city;
+        };
+    }
+
     private List<NameCountItem> buildUsageDistribution() {
         List<UsageSummary> latest = latestUsageBySubscription();
 
@@ -202,10 +292,10 @@ public class AdminDashboardService {
             if (limit.compareTo(BigDecimal.ZERO) <= 0) {
                 continue;
             }
-            double ratio = usage.getUsedInternetGb().doubleValue() / limit.doubleValue();
-            if (ratio < 0.5) {
+            String bucket = usageBucket(usage);
+            if (bucket.equals("Under 50%")) {
                 underHalf++;
-            } else if (ratio <= 1.0) {
+            } else if (bucket.equals("50-100%")) {
                 halfToFull++;
             } else {
                 overFull++;
@@ -217,6 +307,18 @@ public class AdminDashboardService {
                 new NameCountItem("50-100%", halfToFull),
                 new NameCountItem("Over 100%", overFull)
         );
+    }
+
+    private String usageBucket(UsageSummary usage) {
+        BigDecimal limit = usage.getSubscription().getTariffPackage().getInternetLimitGb();
+        if (limit.compareTo(BigDecimal.ZERO) <= 0) {
+            return "No Usage Data";
+        }
+
+        double ratio = usage.getUsedInternetGb().doubleValue() / limit.doubleValue();
+        if (ratio < 0.5) return "Under 50%";
+        if (ratio <= 1.0) return "50-100%";
+        return "Over 100%";
     }
 
     private List<UsageSummary> latestUsageBySubscription() {
