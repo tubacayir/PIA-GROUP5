@@ -24,14 +24,18 @@ import {
   YAxis,
 } from "recharts";
 
+import { useState } from "react";
+
 import MetricCard from "../../components/organization/MetricCard";
 import { ErrorState, LoadingState } from "../../components/organization/AsyncStates";
 import { useAsyncData } from "../../features/organization/useAsyncData";
 import {
+  approveRecommendation,
   getDashboardSummary,
   getInvoiceTrend,
   getRecommendations,
   getUsageTrend,
+  rejectRecommendation,
 } from "../../features/organization/organizationService";
 import { formatCurrency, formatMonthLabel, formatNumber } from "../../features/organization/format";
 
@@ -59,6 +63,9 @@ export default function OrganizationDashboardPage() {
   const invoiceTrend = useAsyncData(getInvoiceTrend, []);
   const recommendations = useAsyncData(getRecommendations, []);
 
+  const [recommendationActing, setRecommendationActing] = useState(false);
+  const [recommendationError, setRecommendationError] = useState<string | null>(null);
+
   const loading = summary.loading || usageTrend.loading || invoiceTrend.loading;
   const error = summary.error ?? usageTrend.error ?? invoiceTrend.error;
 
@@ -71,6 +78,32 @@ export default function OrganizationDashboardPage() {
   }
 
   const kpis = summary.data;
+
+  const handleApproveRecommendation = async (id: number) => {
+    setRecommendationActing(true);
+    setRecommendationError(null);
+    try {
+      const updated = await approveRecommendation(id);
+      recommendations.setData((current) => current?.map((r) => (r.id === id ? updated : r)) ?? current);
+    } catch (err) {
+      setRecommendationError(err instanceof Error ? err.message : "İşlem başarısız oldu.");
+    } finally {
+      setRecommendationActing(false);
+    }
+  };
+
+  const handleRejectRecommendation = async (id: number) => {
+    setRecommendationActing(true);
+    setRecommendationError(null);
+    try {
+      const updated = await rejectRecommendation(id);
+      recommendations.setData((current) => current?.map((r) => (r.id === id ? updated : r)) ?? current);
+    } catch (err) {
+      setRecommendationError(err instanceof Error ? err.message : "İşlem başarısız oldu.");
+    } finally {
+      setRecommendationActing(false);
+    }
+  };
 
   const usagePoints = (usageTrend.data ?? []).map((point) => ({
     label: formatMonthLabel(point.year, point.month),
@@ -236,10 +269,33 @@ export default function OrganizationDashboardPage() {
                     </p>
                   )}
 
-                  {topRecommendation.expectedSavingAmount != null && topRecommendation.expectedSavingAmount > 0 && (
-                    <p className="mt-1 text-xs font-medium text-emerald-700">
-                      Est. saving {formatCurrency(topRecommendation.expectedSavingAmount)}
-                    </p>
+                  {recommendationError && (
+                    <p className="mt-2 text-xs font-medium text-red-600">{recommendationError}</p>
+                  )}
+
+                  {topRecommendation.status === "SUGGESTED" && (
+                    <div className="mt-3 flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleApproveRecommendation(topRecommendation.id)}
+                        disabled={recommendationActing}
+                        className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        Approve
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleRejectRecommendation(topRecommendation.id)}
+                        disabled={recommendationActing}
+                        className="rounded-lg border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  )}
+
+                  {topRecommendation.status === "APPROVED" && (
+                    <p className="mt-3 text-xs font-medium text-emerald-700">You approved this recommendation.</p>
                   )}
                 </div>
               </div>

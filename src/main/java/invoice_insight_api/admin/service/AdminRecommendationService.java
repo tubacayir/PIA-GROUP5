@@ -38,10 +38,12 @@ public class AdminRecommendationService {
         return toResponse(requireRecommendation(id));
     }
 
+    // Admin doesn't approve a recommendation outright — it only suggests it to the
+    // customer/organization, who must approve it themselves before it's final.
     @Transactional
-    public AdminRecommendationResponse approve(Long id, Long adminId) {
+    public AdminRecommendationResponse suggest(Long id, Long adminId) {
         Recommendation recommendation = requireRecommendation(id);
-        recommendation.setStatus(RecommendationStatus.APPROVED);
+        recommendation.setStatus(RecommendationStatus.SUGGESTED);
         recommendation.setReviewedBy(adminId);
         recommendation.setReviewedAt(LocalDateTime.now());
         return toResponse(recommendationRepository.save(recommendation));

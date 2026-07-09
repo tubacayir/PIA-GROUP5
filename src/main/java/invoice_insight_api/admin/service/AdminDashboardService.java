@@ -6,13 +6,17 @@ import invoice_insight_api.admin.dto.AdminMonthlyCountPoint;
 import invoice_insight_api.admin.dto.AdminMonthlyRevenuePoint;
 import invoice_insight_api.admin.dto.NameAmountItem;
 import invoice_insight_api.admin.dto.NameCountItem;
+import invoice_insight_api.shared.enums.PaymentChannel;
+import invoice_insight_api.shared.enums.PaymentStatus;
 import invoice_insight_api.shared.enums.Status;
 import invoice_insight_api.shared.enums.SubscriptionType;
 import invoice_insight_api.shared.model.Invoice;
+import invoice_insight_api.shared.model.Payment;
 import invoice_insight_api.shared.model.UsageSummary;
 import invoice_insight_api.shared.repository.CustomerRepository;
 import invoice_insight_api.shared.repository.InvoiceRepository;
 import invoice_insight_api.shared.repository.OrganizationRepository;
+import invoice_insight_api.shared.repository.PaymentRepository;
 import invoice_insight_api.shared.repository.SubscriptionRepository;
 import invoice_insight_api.shared.repository.UsageSummaryRepository;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +51,7 @@ public class AdminDashboardService {
     private final InvoiceRepository invoiceRepository;
     private final UsageSummaryRepository usageSummaryRepository;
     private final OrganizationRepository organizationRepository;
+    private final PaymentRepository paymentRepository;
 
     @Cacheable(ADMIN_DASHBOARD_SUMMARY_CACHE)
     public AdminDashboardSummaryResponse getSummary() {
@@ -66,10 +71,32 @@ public class AdminDashboardService {
         double digitalRate = deliveryTagged == 0 ? 0 : percentage(digitalCount, deliveryTagged);
         double paperRate = deliveryTagged == 0 ? 0 : 100 - digitalRate;
 
-        long paidWithPaymentDate = invoiceRepository.countPaidWithPaymentDate();
-        long paidOnTime = invoiceRepository.countPaidOnTime();
-        double paidOnTimeRate = paidWithPaymentDate == 0 ? 0 : percentage(paidOnTime, paidWithPaymentDate);
-        double latePaymentRate = paidWithPaymentDate == 0 ? 0 : 100 - paidOnTimeRate;
+        // "Paid" is derived from real payment records, not the (largely unused) invoice.status
+        // field: an invoice is Paid only if it has at least one PAID payment attached.
+        long paidInvoiceCount = paymentRepository.countDistinctInvoicesWithSuccessfulPayment();
+        long unpaidInvoiceCount = totalInvoices - paidInvoiceCount;
+        double unpaidInvoiceRate = totalInvoices == 0 ? 0 : percentage(unpaidInvoiceCount, totalInvoices);
+
+        long paidOnTime = paymentRepository.countDistinctInvoicesPaidOnTime();
+        long paidLate = paymentRepository.countDistinctInvoicesPaidLate();
+        double paidOnTimeRate = paidInvoiceCount == 0 ? 0 : percentage(paidOnTime, paidInvoiceCount);
+        double latePaymentRate = paidInvoiceCount == 0 ? 0 : percentage(paidLate, paidInvoiceCount);
+
+        List<Object[]> channelCounts = paymentRepository.countSuccessfulPaymentsByChannelGrouped();
+        long digitalChannelCount = 0;
+        long physicalChannelCount = 0;
+        for (Object[] row : channelCounts) {
+            PaymentChannel channel = (PaymentChannel) row[0];
+            long count = (Long) row[1];
+            if (channel.isDigital()) {
+                digitalChannelCount += count;
+            } else {
+                physicalChannelCount += count;
+            }
+        }
+        long totalChannelPayments = digitalChannelCount + physicalChannelCount;
+        double digitalChannelRate = totalChannelPayments == 0 ? 0 : percentage(digitalChannelCount, totalChannelPayments);
+        double physicalChannelRate = totalChannelPayments == 0 ? 0 : percentage(physicalChannelCount, totalChannelPayments);
 
         BigDecimal averageInvoiceAmount = invoiceRepository.findAverageTotalAmount();
         if (averageInvoiceAmount == null) {
@@ -98,7 +125,12 @@ public class AdminDashboardService {
                 round(paidOnTimeRate),
                 round(latePaymentRate),
                 averageInvoiceAmount,
-                averageInternetUsageGb
+                averageInternetUsageGb,
+                paidInvoiceCount,
+                unpaidInvoiceCount,
+                round(unpaidInvoiceRate),
+                round(digitalChannelRate),
+                round(physicalChannelRate)
         );
     }
 
@@ -132,7 +164,7 @@ public class AdminDashboardService {
                 .map(row -> new NameCountItem(row[0].toString(), (Long) row[1]))
                 .toList();
 
-        List<NameCountItem> paymentChannelDistribution = invoiceRepository.countByPaymentChannelGrouped().stream()
+        List<NameCountItem> paymentChannelDistribution = paymentRepository.countSuccessfulPaymentsByChannelGrouped().stream()
                 .map(row -> new NameCountItem(row[0].toString(), (Long) row[1]))
                 .toList();
 
@@ -159,12 +191,13 @@ public class AdminDashboardService {
 
         List<Invoice> invoicesWithCustomerData = invoiceRepository.findAllWithSubscriptionCustomerAndPackage();
         List<NameAmountItem> invoiceAmountByAgeGroup = buildInvoiceAmountByAgeGroup(invoicesWithCustomerData);
-        List<NameAmountItem> invoiceAmountByPaymentChannel = buildInvoiceAmountByPaymentChannel(invoicesWithCustomerData);
+        List<NameAmountItem> invoiceAmountByPaymentChannel =
+                buildInvoiceAmountByPaymentChannel(paymentRepository.findByStatus(PaymentStatus.PAID));
         List<NameAmountItem> invoiceAmountByDeliveryMethod = buildInvoiceAmountByDeliveryMethod(invoicesWithCustomerData);
         List<NameAmountItem> invoiceAmountByPackageUsage =
                 buildInvoiceAmountByPackageUsage(invoicesWithCustomerData, latestUsagePerSubscription);
 
-        List<AdminMonthlyCountPoint> latePaymentTrend = invoiceRepository.findLatePaymentMonthlyTrend().stream()
+        List<AdminMonthlyCountPoint> latePaymentTrend = paymentRepository.findLatePaymentMonthlyTrend().stream()
                 .map(row -> new AdminMonthlyCountPoint((Integer) row[0], (Integer) row[1], (Long) row[2]))
                 .toList();
 
@@ -206,11 +239,11 @@ public class AdminDashboardService {
                 .toList();
     }
 
-    private List<NameAmountItem> buildInvoiceAmountByPaymentChannel(List<Invoice> invoices) {
-        return invoices.stream()
+    private List<NameAmountItem> buildInvoiceAmountByPaymentChannel(List<Payment> successfulPayments) {
+        return successfulPayments.stream()
                 .collect(Collectors.groupingBy(
-                        invoice -> invoice.getPaymentChannel() == null ? "No Payment Channel" : invoice.getPaymentChannel().name(),
-                        Collectors.reducing(BigDecimal.ZERO, Invoice::getTotalAmount, BigDecimal::add)
+                        payment -> payment.getPaymentChannel().name(),
+                        Collectors.reducing(BigDecimal.ZERO, Payment::getAmount, BigDecimal::add)
                 ))
                 .entrySet()
                 .stream()

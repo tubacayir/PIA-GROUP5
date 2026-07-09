@@ -87,8 +87,8 @@ export const createAdmin = (request: CreateAdminUserRequest) =>
 export const getRecommendations = (filters: RecommendationFilters = {}) =>
   unwrap<AdminRecommendation[]>(api.get("/admin/recommendations", { params: filters }));
 
-export const approveRecommendation = (id: number) =>
-  unwrap<AdminRecommendation>(api.post(`/admin/recommendations/${id}/approve`));
+export const suggestRecommendation = (id: number) =>
+  unwrap<AdminRecommendation>(api.post(`/admin/recommendations/${id}/suggest`));
 
 export const rejectRecommendation = (id: number) =>
   unwrap<AdminRecommendation>(api.post(`/admin/recommendations/${id}/reject`));

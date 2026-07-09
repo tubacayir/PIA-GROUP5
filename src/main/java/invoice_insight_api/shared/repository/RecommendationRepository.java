@@ -19,10 +19,10 @@ public interface RecommendationRepository extends JpaRepository<Recommendation, 
 
     Optional<Recommendation> findByOrganization_Id(Long organizationId);
 
-    // Customer/corporate-facing read (Approved-only).
-    Optional<Recommendation> findByCustomer_IdAndStatus(Long customerId, RecommendationStatus status);
+    // Customer/corporate-facing read: visible once suggested (actionable) or already approved.
+    Optional<Recommendation> findByCustomer_IdAndStatusIn(Long customerId, List<RecommendationStatus> statuses);
 
-    Optional<Recommendation> findByOrganization_IdAndStatus(Long organizationId, RecommendationStatus status);
+    Optional<Recommendation> findByOrganization_IdAndStatusIn(Long organizationId, List<RecommendationStatus> statuses);
 
     // Dashboard counter used by CorporateService.getDashboardSummary.
     long countByOrganization_IdAndStatus(Long organizationId, RecommendationStatus status);

@@ -11,6 +11,7 @@ import invoice_insight_api.shared.dto.MonthlyInvoiceTrendPoint;
 import invoice_insight_api.corporate.dto.MonthlyUsageTrendPoint;
 import invoice_insight_api.admin.dto.UpdateCustomerRequest;
 import invoice_insight_api.shared.enums.Gender;
+import invoice_insight_api.shared.enums.PaymentStatus;
 import invoice_insight_api.shared.enums.Status;
 import invoice_insight_api.shared.exception.DuplicateResourceException;
 import invoice_insight_api.shared.exception.ResourceNotFoundException;
@@ -45,6 +46,7 @@ public class AdminCustomerService {
     private final CustomerRepository customerRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final InvoiceRepository invoiceRepository;
+    private final PaymentRepository paymentRepository;
     private final UsageSummaryRepository usageSummaryRepository;
     private final PasswordEncoder passwordEncoder;
     private final TariffPackageRepository tariffPackageRepository;
@@ -151,15 +153,21 @@ public class AdminCustomerService {
                 .toList();
         List<MonthlyUsageTrendPoint> usageTrend = buildMonthlyUsageTrend(allUsage);
 
-        List<AdminPaymentHistoryItem> paymentHistory = invoices.stream()
-                .filter(i -> i.getPaymentDate() != null)
-                .map(i -> new AdminPaymentHistoryItem(
-                        i.getInvoiceNumber(),
-                        i.getPaymentDate(),
-                        i.getPaymentChannel() != null ? i.getPaymentChannel().name() : null,
-                        i.getTotalAmount(),
-                        !i.getPaymentDate().isAfter(i.getDueDate())
-                ))
+        Map<Long, Invoice> invoiceById = invoices.stream()
+                .collect(Collectors.toMap(Invoice::getId, i -> i));
+        List<AdminPaymentHistoryItem> paymentHistory = paymentRepository
+                .findByInvoice_IdInAndStatusOrderByPaymentDateDesc(invoiceById.keySet(), PaymentStatus.PAID)
+                .stream()
+                .map(p -> {
+                    Invoice invoice = invoiceById.get(p.getInvoice().getId());
+                    return new AdminPaymentHistoryItem(
+                            invoice.getInvoiceNumber(),
+                            p.getPaymentDate(),
+                            p.getPaymentChannel().name(),
+                            p.getAmount(),
+                            !p.getPaymentDate().isAfter(invoice.getDueDate())
+                    );
+                })
                 .toList();
 
         return new AdminCustomerDetailResponse(

@@ -8,6 +8,7 @@ const TONE_BY_STATUS: Record<string, string> = {
   OVERDUE: "bg-red-100 text-red-700",
   CANCELLED: "bg-slate-100 text-slate-500",
   PENDING: "bg-amber-100 text-amber-700",
+  SUGGESTED: "bg-violet-100 text-violet-700",
   APPROVED: "bg-emerald-100 text-emerald-700",
   REJECTED: "bg-red-100 text-red-700",
 };

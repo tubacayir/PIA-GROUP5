@@ -18,10 +18,12 @@ import { Link } from "react-router-dom";
 import { useAuthStore } from "../features/auth/authStore";
 import { useAsyncData } from "../features/customer/useAsyncData";
 import {
+  approveRecommendation,
   getCurrentUsage,
   getDashboardSummary,
   getInvoices,
   getRecommendations,
+  rejectRecommendation,
 } from "../features/customer/customerService";
 import { formatCurrency, formatDate, formatPeriodLabel } from "../features/customer/format";
 
@@ -63,6 +65,8 @@ export default function CustomerProfilePage() {
 
   const [panelIndex, setPanelIndex] = useState(0);
   const [upgradeRequested, setUpgradeRequested] = useState(false);
+  const [recommendationActing, setRecommendationActing] = useState(false);
+  const [recommendationError, setRecommendationError] = useState<string | null>(null);
 
   const loading = summary.loading || usage.loading || invoices.loading;
 
@@ -108,6 +112,32 @@ export default function CustomerProfilePage() {
 
   const latestInvoice = sortedInvoices[0];
   const activeRecommendation = (recommendations.data ?? [])[0];
+
+  const handleApproveRecommendation = async (id: number) => {
+    setRecommendationActing(true);
+    setRecommendationError(null);
+    try {
+      const updated = await approveRecommendation(id);
+      recommendations.setData((current) => current?.map((r) => (r.id === id ? updated : r)) ?? current);
+    } catch (err) {
+      setRecommendationError(err instanceof Error ? err.message : "İşlem başarısız oldu.");
+    } finally {
+      setRecommendationActing(false);
+    }
+  };
+
+  const handleRejectRecommendation = async (id: number) => {
+    setRecommendationActing(true);
+    setRecommendationError(null);
+    try {
+      const updated = await rejectRecommendation(id);
+      recommendations.setData((current) => current?.map((r) => (r.id === id ? updated : r)) ?? current);
+    } catch (err) {
+      setRecommendationError(err instanceof Error ? err.message : "İşlem başarısız oldu.");
+    } finally {
+      setRecommendationActing(false);
+    }
+  };
 
   const usagePanels: {
     key: UsagePanelKey;
@@ -470,14 +500,36 @@ export default function CustomerProfilePage() {
                     </p>
                   )}
 
-                  {activeRecommendation.expectedSavingAmount != null &&
-                    activeRecommendation.expectedSavingAmount > 0 && (
-                      <p className="mt-1 text-xs font-semibold text-emerald-700">
-                        Tahmini aylık tasarruf: {formatCurrency(activeRecommendation.expectedSavingAmount)}
-                      </p>
-                    )}
+                  {recommendationError && (
+                    <p className="mt-2 text-xs font-medium text-red-600">{recommendationError}</p>
+                  )}
 
-                  {activeRecommendation.recommendationType === "UPGRADE" && (
+                  {activeRecommendation.status === "SUGGESTED" && (
+                    <div className="mt-3 flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleApproveRecommendation(activeRecommendation.id)}
+                        disabled={recommendationActing}
+                        className="rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        Onayla
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleRejectRecommendation(activeRecommendation.id)}
+                        disabled={recommendationActing}
+                        className="rounded-xl border border-red-300 px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        Reddet
+                      </button>
+                    </div>
+                  )}
+
+                  {activeRecommendation.status === "APPROVED" && (
+                    <p className="mt-3 text-sm font-medium text-emerald-700">Bu öneriyi onayladınız.</p>
+                  )}
+
+                  {activeRecommendation.recommendationType === "UPGRADE" && activeRecommendation.status !== "SUGGESTED" && (
                     <div className="mt-3">
                       {upgradeRequested ? (
                         <p className="text-sm font-medium text-emerald-700">

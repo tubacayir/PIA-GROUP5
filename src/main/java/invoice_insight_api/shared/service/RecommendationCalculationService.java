@@ -316,18 +316,18 @@ public class RecommendationCalculationService {
 
         if (highPriority) {
             return suggested != null
-                    ? "Son 6 ayda her ay paket limiti aşıldı (ortalama kullanım %" + percent + "); acil yükseltme öneriliyor: " + suggested.getPackageName() + " paketine geçiş önerilir."
-                    : "Son 6 ayda her ay paket limiti aşıldı (ortalama kullanım %" + percent + "); acil yükseltme öneriliyor, ancak daha üst bir paket bulunamadı.";
+                    ? "Son 3 ayda her ay paket limiti aşıldı (ortalama kullanım %" + percent + "); acil yükseltme öneriliyor: " + suggested.getPackageName() + " paketine geçiş önerilir."
+                    : "Son 3 ayda her ay paket limiti aşıldı (ortalama kullanım %" + percent + "); acil yükseltme öneriliyor, ancak daha üst bir paket bulunamadı.";
         }
 
         return switch (type) {
             case UPGRADE -> suggested != null
-                    ? "Son 6 ayda ortalama kullanım paket limitinin %" + percent + "'ine ulaştı; " + suggested.getPackageName() + " paketine geçiş önerilir."
-                    : "Son 6 ayda ortalama kullanım paket limitinin %" + percent + "'ine ulaştı, ancak daha üst bir paket bulunamadı.";
+                    ? "Son 3 ayda ortalama kullanım paket limitinin %" + percent + "'ine ulaştı; " + suggested.getPackageName() + " paketine geçiş önerilir."
+                    : "Son 3 ayda ortalama kullanım paket limitinin %" + percent + "'ine ulaştı, ancak daha üst bir paket bulunamadı.";
             case DOWNGRADE -> suggested != null
-                    ? "Son 6 ayda ortalama kullanım paket limitinin sadece %" + percent + "'i kadar; " + suggested.getPackageName() + " paketine geçerek tasarruf sağlanabilir."
-                    : "Son 6 ayda ortalama kullanım paket limitinin sadece %" + percent + "'i kadar, ancak daha alt bir paket bulunamadı.";
-            case NO_CHANGE -> "Son 6 ayda ortalama kullanım paket limitinin %" + percent + "'i seviyesinde, mevcut paket uygun.";
+                    ? "Son 3 ayda ortalama kullanım paket limitinin sadece %" + percent + "'i kadar; " + suggested.getPackageName() + " paketine geçerek tasarruf sağlanabilir."
+                    : "Son 3 ayda ortalama kullanım paket limitinin sadece %" + percent + "'i kadar, ancak daha alt bir paket bulunamadı.";
+            case NO_CHANGE -> "Son 3 ayda ortalama kullanım paket limitinin %" + percent + "'i seviyesinde, mevcut paket uygun.";
         };
     }
 
@@ -336,18 +336,18 @@ public class RecommendationCalculationService {
 
         if (highPriority) {
             return suggested != null
-                    ? "Şirket genelinde son 6 ayda her ay paket limiti aşıldı (ortalama kullanım %" + percent + "); acil yükseltme öneriliyor: " + suggested.getPackageName() + " paketine geçiş önerilir."
-                    : "Şirket genelinde son 6 ayda her ay paket limiti aşıldı (ortalama kullanım %" + percent + "); acil yükseltme öneriliyor, ancak daha üst bir paket bulunamadı.";
+                    ? "Şirket genelinde son 3 ayda her ay paket limiti aşıldı (ortalama kullanım %" + percent + "); acil yükseltme öneriliyor: " + suggested.getPackageName() + " paketine geçiş önerilir."
+                    : "Şirket genelinde son 3 ayda her ay paket limiti aşıldı (ortalama kullanım %" + percent + "); acil yükseltme öneriliyor, ancak daha üst bir paket bulunamadı.";
         }
 
         return switch (type) {
             case UPGRADE -> suggested != null
-                    ? "Şirket genelinde son 6 ayda ortalama kullanım paket limitinin %" + percent + "'ine ulaştı; " + suggested.getPackageName() + " paketine geçiş önerilir."
-                    : "Şirket genelinde son 6 ayda ortalama kullanım paket limitinin %" + percent + "'ine ulaştı, ancak daha üst bir paket bulunamadı.";
+                    ? "Şirket genelinde son 3 ayda ortalama kullanım paket limitinin %" + percent + "'ine ulaştı; " + suggested.getPackageName() + " paketine geçiş önerilir."
+                    : "Şirket genelinde son 3 ayda ortalama kullanım paket limitinin %" + percent + "'ine ulaştı, ancak daha üst bir paket bulunamadı.";
             case DOWNGRADE -> suggested != null
-                    ? "Şirket genelinde son 6 ayda ortalama kullanım paket limitinin sadece %" + percent + "'i kadar; " + suggested.getPackageName() + " paketine geçerek tasarruf sağlanabilir."
-                    : "Şirket genelinde son 6 ayda ortalama kullanım paket limitinin sadece %" + percent + "'i kadar, ancak daha alt bir paket bulunamadı.";
-            case NO_CHANGE -> "Şirket genelinde son 6 ayda ortalama kullanım paket limitinin %" + percent + "'i seviyesinde, mevcut paket uygun.";
+                    ? "Şirket genelinde son 3 ayda ortalama kullanım paket limitinin sadece %" + percent + "'i kadar; " + suggested.getPackageName() + " paketine geçerek tasarruf sağlanabilir."
+                    : "Şirket genelinde son 3 ayda ortalama kullanım paket limitinin sadece %" + percent + "'i kadar, ancak daha alt bir paket bulunamadı.";
+            case NO_CHANGE -> "Şirket genelinde son 3 ayda ortalama kullanım paket limitinin %" + percent + "'i seviyesinde, mevcut paket uygun.";
         };
     }
 }

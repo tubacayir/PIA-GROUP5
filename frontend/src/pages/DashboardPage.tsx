@@ -1,17 +1,18 @@
 import {
   CreditCard,
+  Globe,
   ReceiptText,
   Smartphone,
+  Store,
   Users,
+  Wallet,
 } from "lucide-react";
 
 import DashboardHeader from "../components/dashboard/DashboardHeader";
-import GreenInvoiceCard from "../components/dashboard/GreenInvoiceCard";
 import type { KpiCardProps } from "../components/dashboard/KpiCard";
 import KpiSlider from "../components/dashboard/KpiSlider";
 import PaymentChannelCard from "../components/dashboard/PaymentChannelCard";
 import PaymentStatusCard from "../components/dashboard/PaymentStatusCard";
-import RiskInsightsCard from "../components/dashboard/RiskInsightsCard";
 import RevenueTrendChart from "../components/dashboard/RevenueTrendChart";
 import { ErrorState, LoadingState } from "../components/organization/AsyncStates";
 
@@ -19,11 +20,9 @@ import { useAsyncData } from "../features/admin/useAsyncData";
 import { getDashboardCharts, getDashboardSummary } from "../features/admin/adminService";
 import { formatCurrency, formatMonthLabel, formatNumber } from "../features/admin/format";
 
-const STATUS_COLORS: Record<string, string> = {
-  PAID: "#16a34a",
-  OVERDUE: "#ef4444",
-  CREATED: "#2563eb",
-  CANCELLED: "#94a3b8",
+const PAYMENT_STATUS_COLORS: Record<string, string> = {
+  Paid: "#13a34a",
+  Unpaid: "#ef4444",
 };
 
 const CHANNEL_LABELS: Record<string, string> = {
@@ -65,12 +64,14 @@ export default function DashboardPage() {
     };
   });
 
-  const invoiceStatusTotal = chartData.invoiceStatusDistribution.reduce((sum, item) => sum + item.count, 0);
-  const paymentStatusSlices = chartData.invoiceStatusDistribution.map((item) => ({
-    name: item.name,
-    value: item.count,
-    percentage: invoiceStatusTotal > 0 ? Math.round((item.count / invoiceStatusTotal) * 100) : 0,
-    color: STATUS_COLORS[item.name] ?? "#64748b",
+  const paymentStatusTotal = kpi.paidInvoiceCount + kpi.unpaidInvoiceCount;
+  const paymentStatusSlices = [
+    { name: "Paid", value: kpi.paidInvoiceCount },
+    { name: "Unpaid", value: kpi.unpaidInvoiceCount },
+  ].map((item) => ({
+    ...item,
+    percentage: paymentStatusTotal > 0 ? Math.round((item.value / paymentStatusTotal) * 100) : 0,
+    color: PAYMENT_STATUS_COLORS[item.name],
   }));
 
   const channelTotal = chartData.paymentChannelDistribution.reduce((sum, item) => sum + item.count, 0);
@@ -79,43 +80,6 @@ export default function DashboardPage() {
     percentage: channelTotal > 0 ? Math.round((item.count / channelTotal) * 100) : 0,
     isPhysical: item.name === "STORE",
   }));
-
-  const overdueCount = chartData.invoiceStatusDistribution.find((item) => item.name === "OVERDUE")?.count ?? 0;
-  const cancelledCount = chartData.invoiceStatusDistribution.find((item) => item.name === "CANCELLED")?.count ?? 0;
-  const overLimitCount = chartData.usageDistribution.find((item) => item.name === "Over 100%")?.count ?? 0;
-  const underutilizedCount = chartData.usageDistribution.find((item) => item.name === "Under 50%")?.count ?? 0;
-
-  const riskItems = [
-    {
-      title: "Overdue Invoices",
-      value: formatNumber(overdueCount),
-      description: "Invoices past their due date",
-      className: "risk-high",
-    },
-    {
-      title: "Cancelled Invoices",
-      value: formatNumber(cancelledCount),
-      description: "Invoices cancelled system-wide",
-      className: "risk-restricted",
-    },
-    {
-      title: "Over-Limit Subscriptions",
-      value: formatNumber(overLimitCount),
-      description: "Subscriptions exceeding their package limits",
-      className: "risk-contract",
-    },
-    {
-      title: "Underutilized Subscriptions",
-      value: formatNumber(underutilizedCount),
-      description: "Subscriptions using under 50% of their package",
-      className: "risk-anomaly",
-    },
-  ];
-
-  const digitalCount = chartData.digitalVsPaper.find((item) => item.name === "DIGITAL")?.count ?? 0;
-  const paperCount = chartData.digitalVsPaper.find((item) => item.name === "PAPER")?.count ?? 0;
-  const carbonSavedKg = Math.round(digitalCount * 0.05);
-  const treesEquivalent = Math.round(carbonSavedKg / 21);
 
   const overviewItems: KpiCardProps[] = [
     {
@@ -220,6 +184,30 @@ export default function DashboardPage() {
       icon: CreditCard,
       tone: "red",
     },
+    {
+      title: "Unpaid Invoices",
+      value: formatNumber(kpi.unpaidInvoiceCount),
+      description: "Invoices with no successful payment on record",
+      badge: `${kpi.unpaidInvoiceRatePercent}% of all invoices`,
+      icon: Wallet,
+      tone: "red",
+    },
+    {
+      title: "Digital Channels",
+      value: `${kpi.digitalPaymentChannelRatePercent}%`,
+      description: "Payments via mobile app, web, bank app or auto-payment",
+      badge: "Payment channel",
+      icon: Globe,
+      tone: "blue",
+    },
+    {
+      title: "Physical Channel",
+      value: `${kpi.physicalPaymentChannelRatePercent}%`,
+      description: "Payments made in-store",
+      badge: "Payment channel",
+      icon: Store,
+      tone: "amber",
+    },
   ];
 
   return (
@@ -247,21 +235,6 @@ export default function DashboardPage() {
       <div className="dashboard-analytics-grid">
         <PaymentStatusCard data={paymentStatusSlices} />
         <PaymentChannelCard data={paymentChannelSlices} />
-      </div>
-
-      <div className="dashboard-risk-section">
-        <RiskInsightsCard items={riskItems} />
-      </div>
-
-      <div className="dashboard-green-section">
-        <GreenInvoiceCard
-          data={{
-            digitalInvoices: digitalCount,
-            paperInvoices: paperCount,
-            carbonSavedKg,
-            treesEquivalent,
-          }}
-        />
       </div>
     </div>
   );

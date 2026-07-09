@@ -58,6 +58,12 @@ export const getUsageAnalytics = (overOnly = false) =>
 export const getRecommendations = () =>
   unwrap<Recommendation[]>(api.get("/corporate/recommendations"));
 
+export const approveRecommendation = (id: number) =>
+  unwrap<Recommendation>(api.post(`/corporate/recommendations/${id}/approve`));
+
+export const rejectRecommendation = (id: number) =>
+  unwrap<Recommendation>(api.post(`/corporate/recommendations/${id}/reject`));
+
 export const getInvoices = () =>
   unwrap<CorporateInvoiceSummary[]>(api.get("/corporate/invoices"));
 

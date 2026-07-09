@@ -26,3 +26,9 @@ export const getInvoices = () =>
 
 export const getRecommendations = () =>
   unwrap<Recommendation[]>(api.get("/customer/recommendations"));
+
+export const approveRecommendation = (id: number) =>
+  unwrap<Recommendation>(api.post(`/customer/recommendations/${id}/approve`));
+
+export const rejectRecommendation = (id: number) =>
+  unwrap<Recommendation>(api.post(`/customer/recommendations/${id}/reject`));

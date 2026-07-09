@@ -43,26 +43,11 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
     @Query("SELECT i.deliveryMethod, COUNT(i) FROM Invoice i WHERE i.deliveryMethod IS NOT NULL GROUP BY i.deliveryMethod")
     List<Object[]> countByDeliveryMethodGrouped();
 
-    @Query("SELECT i.paymentChannel, COUNT(i) FROM Invoice i WHERE i.paymentChannel IS NOT NULL GROUP BY i.paymentChannel")
-    List<Object[]> countByPaymentChannelGrouped();
-
     @Query("SELECT COUNT(i) FROM Invoice i WHERE i.deliveryMethod IS NOT NULL")
     long countWithDeliveryMethod();
 
     @Query("SELECT COUNT(i) FROM Invoice i WHERE i.deliveryMethod = invoice_insight_api.shared.enums.DeliveryMethod.DIGITAL")
     long countDigitalInvoices();
-
-    @Query("SELECT COUNT(i) FROM Invoice i WHERE i.status = invoice_insight_api.shared.enums.InvoiceStatus.PAID AND i.paymentDate IS NOT NULL")
-    long countPaidWithPaymentDate();
-
-    @Query("SELECT COUNT(i) FROM Invoice i WHERE i.status = invoice_insight_api.shared.enums.InvoiceStatus.PAID " +
-            "AND i.paymentDate IS NOT NULL AND i.paymentDate <= i.dueDate")
-    long countPaidOnTime();
-
-    @Query("SELECT i.invoiceYear, i.invoiceMonth, COUNT(i) FROM Invoice i " +
-            "WHERE i.status = invoice_insight_api.shared.enums.InvoiceStatus.PAID AND i.paymentDate > i.dueDate " +
-            "GROUP BY i.invoiceYear, i.invoiceMonth ORDER BY i.invoiceYear, i.invoiceMonth")
-    List<Object[]> findLatePaymentMonthlyTrend();
 
     @Query("SELECT s.organization.name, SUM(i.totalAmount) FROM Invoice i JOIN i.subscription s " +
             "WHERE s.organization IS NOT NULL GROUP BY s.organization.id, s.organization.name " +

@@ -23,6 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -120,6 +121,16 @@ public class CorporateController {
     @GetMapping("/recommendations")
     public ResponseEntity<List<RecommendationResponse>> getRecommendations(Authentication authentication) {
         return ResponseEntity.ok(recommendationService.getRecommendationsForOrganization(organizationId(authentication)));
+    }
+
+    @PostMapping("/recommendations/{id}/approve")
+    public ResponseEntity<RecommendationResponse> approveRecommendation(@PathVariable Long id, Authentication authentication) {
+        return ResponseEntity.ok(recommendationService.approveForOrganization(organizationId(authentication), id));
+    }
+
+    @PostMapping("/recommendations/{id}/reject")
+    public ResponseEntity<RecommendationResponse> rejectRecommendation(@PathVariable Long id, Authentication authentication) {
+        return ResponseEntity.ok(recommendationService.rejectForOrganization(organizationId(authentication), id));
     }
 
     private Long organizationId(Authentication authentication) {

@@ -1,18 +1,16 @@
 import { useEffect, useState } from "react";
-import { RefreshCw, Search, Sparkles } from "lucide-react";
+import { Search, Sparkles } from "lucide-react";
 
 import StatusBadge from "../components/organization/StatusBadge";
 import RecommendationTypeBadge, { HighPriorityBadge } from "../components/organization/RecommendationTypeBadge";
 import { ErrorState, LoadingState } from "../components/organization/AsyncStates";
 import { useAsyncData } from "../features/admin/useAsyncData";
 import {
-  approveRecommendation,
   getRecommendations,
-  recalculateAllRecommendations,
   rejectRecommendation,
+  suggestRecommendation,
 } from "../features/admin/adminService";
 import type {
-  BatchRecalculationSummary,
   RecommendationFilters,
   RecommendationStatus,
   RecommendationType,
@@ -32,8 +30,6 @@ export default function RecommendationsPage() {
   const [page, setPage] = useState(1);
   const [actingId, setActingId] = useState<number | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
-  const [recalculating, setRecalculating] = useState(false);
-  const [recalcSummary, setRecalcSummary] = useState<BatchRecalculationSummary | null>(null);
 
   useEffect(() => {
     const timeout = setTimeout(() => setSearch(searchInput), 300);
@@ -70,11 +66,11 @@ export default function RecommendationsPage() {
   const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
   const paginated = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  const handleApprove = async (id: number) => {
+  const handleSuggest = async (id: number) => {
     setActingId(id);
     setActionError(null);
     try {
-      const updated = await approveRecommendation(id);
+      const updated = await suggestRecommendation(id);
       setData((current) => current?.map((r) => (r.id === id ? updated : r)) ?? current);
     } catch (err) {
       setActionError(err instanceof Error ? err.message : "İşlem başarısız oldu.");
@@ -99,20 +95,6 @@ export default function RecommendationsPage() {
     }
   };
 
-  const handleRecalculateAll = async () => {
-    setRecalculating(true);
-    setActionError(null);
-    try {
-      const summary = await recalculateAllRecommendations();
-      setRecalcSummary(summary);
-      setData(await getRecommendations(filters));
-    } catch (err) {
-      setActionError(err instanceof Error ? err.message : "Yeniden hesaplama başarısız oldu.");
-    } finally {
-      setRecalculating(false);
-    }
-  };
-
   if (loading) {
     return <LoadingState label="Loading recommendations..." />;
   }
@@ -123,32 +105,13 @@ export default function RecommendationsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Recommendations</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Review and approve package upgrade/downgrade recommendations.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={handleRecalculateAll}
-          disabled={recalculating}
-          className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          <RefreshCw className={`h-4 w-4 ${recalculating ? "animate-spin" : ""}`} />
-          {recalculating ? "Recalculating..." : "Recalculate All"}
-        </button>
+      <div>
+        <h1 className="text-3xl font-bold text-slate-900">Recommendations</h1>
+        <p className="mt-1 text-sm text-slate-500">
+          Review package upgrade/downgrade recommendations and suggest them to the customer or organization,
+          who will approve or reject them on their side.
+        </p>
       </div>
-
-      {recalcSummary && (
-        <div className="rounded-2xl border border-violet-100 bg-violet-50 p-4 text-sm text-violet-800">
-          Recalculated {recalcSummary.customersProcessed} customers and {recalcSummary.organizationsProcessed}{" "}
-          organizations — {recalcSummary.upgraded} upgrade, {recalcSummary.downgraded} downgrade,{" "}
-          {recalcSummary.noChange} no change, {recalcSummary.highPriority} high priority.
-        </div>
-      )}
 
       {actionError && <ErrorState message={actionError} />}
 
@@ -178,6 +141,7 @@ export default function RecommendationsPage() {
           >
             <option value="All">All Statuses</option>
             <option value="PENDING">Pending</option>
+            <option value="SUGGESTED">Suggested</option>
             <option value="APPROVED">Approved</option>
             <option value="REJECTED">Rejected</option>
           </select>
@@ -218,7 +182,6 @@ export default function RecommendationsPage() {
                 <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Package Change</th>
                 <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Type</th>
                 <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Avg Usage</th>
-                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Est. Saving</th>
                 <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Confidence</th>
                 <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Status</th>
                 <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Actions</th>
@@ -252,32 +215,35 @@ export default function RecommendationsPage() {
                   <td className="px-5 py-4 text-sm text-slate-600">
                     {recommendation.averageUsageRatio != null ? `%${recommendation.averageUsageRatio}` : "—"}
                   </td>
-                  <td className="px-5 py-4 text-sm text-slate-600">
-                    {recommendation.expectedSavingAmount != null ? `${recommendation.expectedSavingAmount} TRY` : "—"}
-                  </td>
                   <td className="px-5 py-4 text-sm text-slate-600">{recommendation.confidenceScore}</td>
                   <td className="px-5 py-4">
                     <StatusBadge status={recommendation.status} />
                   </td>
                   <td className="px-5 py-4">
-                    <div className="flex justify-end gap-2">
-                      <button
-                        type="button"
-                        onClick={() => handleApprove(recommendation.id)}
-                        disabled={recommendation.status !== "PENDING" || actingId === recommendation.id}
-                        className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-40"
-                      >
-                        {actingId === recommendation.id ? "Approving..." : "Approve"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleReject(recommendation.id)}
-                        disabled={recommendation.status !== "PENDING" || actingId === recommendation.id}
-                        className="rounded-lg border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
-                      >
-                        {actingId === recommendation.id ? "Rejecting..." : "Reject"}
-                      </button>
-                    </div>
+                    {recommendation.status === "PENDING" ? (
+                      <div className="flex justify-end gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleSuggest(recommendation.id)}
+                          disabled={actingId === recommendation.id}
+                          className="rounded-lg bg-violet-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                          {actingId === recommendation.id ? "Suggesting..." : "Suggest"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleReject(recommendation.id)}
+                          disabled={actingId === recommendation.id}
+                          className="rounded-lg border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                          {actingId === recommendation.id ? "Rejecting..." : "Reject"}
+                        </button>
+                      </div>
+                    ) : recommendation.status === "SUGGESTED" ? (
+                      <p className="text-right text-xs text-slate-500">Awaiting their approval</p>
+                    ) : (
+                      <p className="text-right text-xs text-slate-400">—</p>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -288,7 +254,7 @@ export default function RecommendationsPage() {
             <div className="px-6 py-16 text-center">
               <Sparkles className="mx-auto h-8 w-8 text-slate-300" />
               <p className="mt-3 font-medium text-slate-700">No recommendations found</p>
-              <p className="mt-1 text-sm text-slate-500">Try changing your filters or recalculate.</p>
+              <p className="mt-1 text-sm text-slate-500">Try changing your filters.</p>
             </div>
           )}
         </div>

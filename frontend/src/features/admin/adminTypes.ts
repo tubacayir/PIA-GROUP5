@@ -11,6 +11,11 @@ export interface AdminDashboardSummary {
   latePaymentRatePercent: number;
   averageInvoiceAmount: number;
   averageInternetUsageGb: number;
+  paidInvoiceCount: number;
+  unpaidInvoiceCount: number;
+  unpaidInvoiceRatePercent: number;
+  digitalPaymentChannelRatePercent: number;
+  physicalPaymentChannelRatePercent: number;
 }
 
 export interface NameCountItem {
@@ -272,7 +277,7 @@ export interface CreateAdminUserRequest {
   canCreateInvoices: boolean;
 }
 
-export type RecommendationStatus = "PENDING" | "APPROVED" | "REJECTED";
+export type RecommendationStatus = "PENDING" | "SUGGESTED" | "APPROVED" | "REJECTED";
 export type RecommendationType = "UPGRADE" | "DOWNGRADE" | "NO_CHANGE";
 
 export interface AdminRecommendation {

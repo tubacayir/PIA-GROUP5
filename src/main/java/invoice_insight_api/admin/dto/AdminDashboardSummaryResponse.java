@@ -14,6 +14,11 @@ public record AdminDashboardSummaryResponse(
         double paidOnTimeRatePercent,
         double latePaymentRatePercent,
         BigDecimal averageInvoiceAmount,
-        BigDecimal averageInternetUsageGb
+        BigDecimal averageInternetUsageGb,
+        long paidInvoiceCount,
+        long unpaidInvoiceCount,
+        double unpaidInvoiceRatePercent,
+        double digitalPaymentChannelRatePercent,
+        double physicalPaymentChannelRatePercent
 ) {
 }

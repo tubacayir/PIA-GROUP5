@@ -32,9 +32,9 @@ public class AdminRecommendationController {
         return ResponseEntity.ok(adminRecommendationService.getRecommendation(id));
     }
 
-    @PostMapping("/{id}/approve")
-    public ResponseEntity<AdminRecommendationResponse> approve(@PathVariable Long id, Authentication authentication) {
-        return ResponseEntity.ok(adminRecommendationService.approve(id, adminId(authentication)));
+    @PostMapping("/{id}/suggest")
+    public ResponseEntity<AdminRecommendationResponse> suggest(@PathVariable Long id, Authentication authentication) {
+        return ResponseEntity.ok(adminRecommendationService.suggest(id, adminId(authentication)));
     }
 
     @PostMapping("/{id}/reject")
