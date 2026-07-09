@@ -25,6 +25,9 @@ public class Customers {
      @Column(name="tc",nullable = false,unique = true, length = 11)
     private String tcIdentityNumber;
 
+    @Column(name = "customer_number", nullable = false, unique = true, length = 20)
+    private String customerNumber;
+
     @Column(name = "first_name", nullable = false, length = 50)
     private String firstName;
 

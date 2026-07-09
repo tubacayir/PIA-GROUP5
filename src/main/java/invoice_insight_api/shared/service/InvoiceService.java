@@ -41,13 +41,13 @@ public class InvoiceService {
     private final InvoiceLineRepository invoiceLineRepository;
 
     public List<InvoiceSummaryResponse> getInvoicesForCustomer(Long customerId) {
-        return invoiceRepository.findBySubscription_Customers_IdOrderByIssueDateDesc(customerId).stream()
+        return invoiceRepository.findBySubscription_Customer_IdOrderByIssueDateDesc(customerId).stream()
                 .map(this::toSummary)
                 .toList();
     }
 
     public InvoiceDetailResponse getInvoiceDetail(Long customerId, Long invoiceId) {
-        Invoice invoice = invoiceRepository.findByIdAndSubscription_Customers_Id(invoiceId, customerId)
+        Invoice invoice = invoiceRepository.findByIdAndSubscription_Customer_Id(invoiceId, customerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Fatura bulunamadı"));
 
         return toDetail(invoice);
@@ -82,7 +82,7 @@ public class InvoiceService {
         List<TopSpenderItem> mostExpensiveSubscriptions = invoicesBySubscriptionId.values().stream()
                 .map(subscriptionInvoices -> {
                     Subscription subscription = subscriptionInvoices.get(0).getSubscription();
-                    Customers customer = subscription.getCustomers();
+                    Customers customer = subscription.getCustomer();
                     BigDecimal total = subscriptionInvoices.stream()
                             .map(Invoice::getTotalAmount)
                             .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -180,7 +180,7 @@ public class InvoiceService {
 
     private CorporateInvoiceSummaryResponse toCorporateSummary(Invoice invoice) {
         Subscription subscription = invoice.getSubscription();
-        Customers customer = subscription.getCustomers();
+        Customers customer = subscription.getCustomer();
 
         return new CorporateInvoiceSummaryResponse(
                 invoice.getId(),

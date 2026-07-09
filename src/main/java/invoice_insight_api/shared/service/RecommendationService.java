@@ -4,10 +4,7 @@ import invoice_insight_api.corporate.dto.RecommendationResponse;
 import invoice_insight_api.shared.dto.PackageResponse;
 import invoice_insight_api.shared.enums.RecommendationStatus;
 import invoice_insight_api.shared.enums.RecommendationType;
-import invoice_insight_api.shared.model.Customers;
-import invoice_insight_api.shared.model.Recommendation;
-import invoice_insight_api.shared.model.Subscription;
-import invoice_insight_api.shared.model.TariffPackage;
+import invoice_insight_api.shared.model.*;
 import invoice_insight_api.shared.repository.RecommendationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,7 +21,7 @@ public class RecommendationService {
 
     public List<invoice_insight_api.shared.dto.RecommendationResponse> getRecommendationsForCustomer(Long customerId) {
         return recommendationRepository
-                .findBySubscription_Customers_IdAndStatusOrderByCreatedAtDesc(customerId, RecommendationStatus.ACTIVE)
+                .findBySubscription_Customer_IdAndStatusOrderByCreatedAtDesc(customerId, RecommendationStatus.ACTIVE)
                 .stream()
                 .map(this::toResponse)
                 .toList();
@@ -55,7 +52,7 @@ public class RecommendationService {
 
     private RecommendationResponse toOrganizationResponse(Recommendation recommendation) {
         Subscription subscription = recommendation.getSubscription();
-        Customers customer = subscription.getCustomers();
+        Customers customer = subscription.getCustomer();
 
         return new RecommendationResponse(
                 recommendation.getId(),

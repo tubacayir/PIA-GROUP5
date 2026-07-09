@@ -1,5 +1,5 @@
 -- Auto-generated seed script for subscriptions
--- Source: Excel import (customers/organizations/packages/subscriptions)
+-- Source: Excel import (customer/organizations/packages/subscriptions)
 TRUNCATE TABLE subscriptions RESTART IDENTITY CASCADE;
 
 INSERT INTO subscriptions (id, subscription_number, phone_number, customer_id, organization_id, package_id, subscription_type, start_date, end_date, status, created_at, updated_at, commitment_start_date, commitment_end_date) OVERRIDING SYSTEM VALUE VALUES

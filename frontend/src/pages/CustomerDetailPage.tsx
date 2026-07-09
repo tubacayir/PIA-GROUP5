@@ -96,7 +96,7 @@ function CustomerDetailContent({ customerId }: { customerId: number }) {
 
     try {
       await deleteCustomer(customer.id);
-      navigate("/customers");
+      navigate("/customer");
     } catch (err) {
       setDeleteError(err instanceof Error ? err.message : "Silme işlemi başarısız oldu.");
       setDeleting(false);
@@ -111,7 +111,7 @@ function CustomerDetailContent({ customerId }: { customerId: number }) {
     <div className="flex flex-col gap-6">
       <div>
         <Link
-          to="/customers"
+          to="/customer"
           className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-blue-600"
         >
           <ArrowLeft className="h-4 w-4" />

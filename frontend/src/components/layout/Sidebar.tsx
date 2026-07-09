@@ -23,7 +23,7 @@ const navigationItems = [
   },
   {
     label: "Customers",
-    path: "/customers",
+    path: "/customer",
     icon: Users,
   },
   {

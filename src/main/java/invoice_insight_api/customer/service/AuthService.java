@@ -24,25 +24,25 @@ public class AuthService {
     private final JwtService jwtService;
 
     public LoginResponse login(LoginRequest request) {
-        Customers customers = customerRepository.findByTcIdentityNumber(request.tcIdentityNumber())
+        Customers customer = customerRepository.findByTcIdentityNumber(request.tcIdentityNumber())
                 .orElseThrow(() -> new InvalidCredentialsException(INVALID_CREDENTIALS_MESSAGE));
 
-        if (customers.getStatus() != Status.ACTIVE) {
+        if (customer.getStatus() != Status.ACTIVE) {
             throw new InvalidCredentialsException("Hesap aktif değil");
         }
 
-        if (!passwordEncoder.matches(request.password(), customers.getPassword())) {
+        if (!passwordEncoder.matches(request.password(), customer.getPassword())) {
             throw new InvalidCredentialsException(INVALID_CREDENTIALS_MESSAGE);
         }
 
-        String token = jwtService.generateToken(customers);
+        String token = jwtService.generateToken(customer);
 
         return new LoginResponse(
                 token,
                 "Bearer",
-                customers.getId(),
-                customers.getFirstName() + " " + customers.getLastName(),
-                customers.getEmail()
+                customer.getId(),
+                customer.getFirstName() + " " + customer.getLastName(),
+                customer.getEmail()
         );
     }
 }

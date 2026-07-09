@@ -18,15 +18,15 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
 
     Optional<Subscription> findByIdAndOrganization_Id(Long id, Long organizationId);
 
-    List<Subscription> findByOrganization_IdAndCustomers_Id(Long organizationId, Long customerId);
+    List<Subscription> findByOrganization_IdAndCustomer_Id(Long organizationId, Long customerId);
 
-    List<Subscription> findByCustomers_Id(Long customerId);
+    List<Subscription> findByCustomer_Id(Long customerId);
 
     long countByOrganization_IdAndStatus(Long organizationId, Status status);
 
     long countBySubscriptionType(SubscriptionType subscriptionType);
 
-    long countByCustomers_Id(Long customerId);
+    long countByCustomer_Id(Long customerId);
 
     @Query("SELECT s.subscriptionType, COUNT(s) FROM Subscription s GROUP BY s.subscriptionType")
     List<Object[]> countBySubscriptionTypeGrouped();

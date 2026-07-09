@@ -7,7 +7,8 @@ import {
 
 import DashboardHeader from "../components/dashboard/DashboardHeader";
 import GreenInvoiceCard from "../components/dashboard/GreenInvoiceCard";
-import KpiCard from "../components/dashboard/KpiCard";
+import type { KpiCardProps } from "../components/dashboard/KpiCard";
+import KpiSlider from "../components/dashboard/KpiSlider";
 import PaymentChannelCard from "../components/dashboard/PaymentChannelCard";
 import PaymentStatusCard from "../components/dashboard/PaymentStatusCard";
 import RiskInsightsCard from "../components/dashboard/RiskInsightsCard";
@@ -116,118 +117,127 @@ export default function DashboardPage() {
   const carbonSavedKg = Math.round(digitalCount * 0.05);
   const treesEquivalent = Math.round(carbonSavedKg / 21);
 
+  const overviewItems: KpiCardProps[] = [
+    {
+      title: "Total Customers",
+      value: formatNumber(kpi.totalCustomers),
+      description: "Total number of registered customers",
+      badge: `${formatNumber(kpi.corporateLineCount)} corporate lines`,
+      icon: Users,
+      tone: "blue",
+    },
+    {
+      title: "Total Subscriptions",
+      value: formatNumber(kpi.totalSubscriptions),
+      description: "Individual and corporate mobile lines",
+      badge: `${formatNumber(kpi.totalCompanies)} companies`,
+      icon: Smartphone,
+      tone: "green",
+    },
+    {
+      title: "Total Companies",
+      value: formatNumber(kpi.totalCompanies),
+      description: "Corporate accounts on the platform",
+      badge: `${formatNumber(kpi.corporateLineCount)} corporate lines`,
+      icon: ReceiptText,
+      tone: "amber",
+    },
+    {
+      title: "Total Invoices",
+      value: formatNumber(kpi.totalInvoices),
+      description: "Invoices issued across all customers",
+      badge: formatCurrency(kpi.monthlyRevenue),
+      icon: CreditCard,
+      tone: "red",
+    },
+  ];
+
+  const revenueItems: KpiCardProps[] = [
+    {
+      title: "Monthly Revenue",
+      value: formatCurrency(kpi.monthlyRevenue),
+      description: "Total billed amount this period",
+      badge: "Current period",
+      icon: ReceiptText,
+      tone: "blue",
+    },
+    {
+      title: "Average Invoice",
+      value: formatCurrency(kpi.averageInvoiceAmount),
+      description: "Average invoice amount across the platform",
+      badge: "All-time average",
+      icon: CreditCard,
+      tone: "green",
+    },
+    {
+      title: "Average Internet Usage",
+      value: `${formatNumber(kpi.averageInternetUsageGb)} GB`,
+      description: "Average internet usage per subscription",
+      badge: "Current period",
+      icon: Smartphone,
+      tone: "amber",
+    },
+    {
+      title: "Corporate Lines",
+      value: formatNumber(kpi.corporateLineCount),
+      description: "Subscriptions tied to a corporate account",
+      badge: `of ${formatNumber(kpi.totalSubscriptions)} total`,
+      icon: Users,
+      tone: "red",
+    },
+  ];
+
+  const rateItems: KpiCardProps[] = [
+    {
+      title: "Digital Invoice Rate",
+      value: `${kpi.digitalInvoiceRatePercent}%`,
+      description: "Invoices delivered digitally",
+      badge: "Delivery method",
+      icon: ReceiptText,
+      tone: "blue",
+    },
+    {
+      title: "Paper Invoice Rate",
+      value: `${kpi.paperInvoiceRatePercent}%`,
+      description: "Invoices delivered on paper",
+      badge: "Delivery method",
+      icon: ReceiptText,
+      tone: "green",
+    },
+    {
+      title: "Paid On Time",
+      value: `${kpi.paidOnTimeRatePercent}%`,
+      description: "Paid invoices settled on or before due date",
+      badge: "Payment behavior",
+      icon: CreditCard,
+      tone: "amber",
+    },
+    {
+      title: "Late Payment",
+      value: `${kpi.latePaymentRatePercent}%`,
+      description: "Paid invoices settled after due date",
+      badge: "Payment behavior",
+      icon: CreditCard,
+      tone: "red",
+    },
+  ];
+
   return (
     <div className="p-6">
       <DashboardHeader />
 
-      <div className="dashboard-kpi-grid">
-        <KpiCard
-          title="Total Customers"
-          value={formatNumber(kpi.totalCustomers)}
-          description="Total number of registered customers"
-          badge={`${formatNumber(kpi.corporateLineCount)} corporate lines`}
-          icon={Users}
-          tone="blue"
-        />
+      <div className="kpi-slider-grid">
+        <div className="kpi-slider-row">
+          <KpiSlider size="sm" items={overviewItems} />
+        </div>
 
-        <KpiCard
-          title="Total Subscriptions"
-          value={formatNumber(kpi.totalSubscriptions)}
-          description="Individual and corporate mobile lines"
-          badge={`${formatNumber(kpi.totalCompanies)} companies`}
-          icon={Smartphone}
-          tone="green"
-        />
+        <div className="kpi-slider-row">
+          <KpiSlider size="lg" items={revenueItems} />
+        </div>
 
-        <KpiCard
-          title="Total Companies"
-          value={formatNumber(kpi.totalCompanies)}
-          description="Corporate accounts on the platform"
-          badge={`${formatNumber(kpi.corporateLineCount)} corporate lines`}
-          icon={ReceiptText}
-          tone="amber"
-        />
-
-        <KpiCard
-          title="Total Invoices"
-          value={formatNumber(kpi.totalInvoices)}
-          description="Invoices issued across all customers"
-          badge={formatCurrency(kpi.monthlyRevenue)}
-          icon={CreditCard}
-          tone="red"
-        />
-
-        <KpiCard
-          title="Monthly Revenue"
-          value={formatCurrency(kpi.monthlyRevenue)}
-          description="Total billed amount this period"
-          badge="Current period"
-          icon={ReceiptText}
-          tone="blue"
-        />
-
-        <KpiCard
-          title="Average Invoice"
-          value={formatCurrency(kpi.averageInvoiceAmount)}
-          description="Average invoice amount across the platform"
-          badge="All-time average"
-          icon={CreditCard}
-          tone="green"
-        />
-
-        <KpiCard
-          title="Average Internet Usage"
-          value={`${formatNumber(kpi.averageInternetUsageGb)} GB`}
-          description="Average internet usage per subscription"
-          badge="Current period"
-          icon={Smartphone}
-          tone="amber"
-        />
-
-        <KpiCard
-          title="Corporate Lines"
-          value={formatNumber(kpi.corporateLineCount)}
-          description="Subscriptions tied to a corporate account"
-          badge={`of ${formatNumber(kpi.totalSubscriptions)} total`}
-          icon={Users}
-          tone="red"
-        />
-
-        <KpiCard
-          title="Digital Invoice Rate"
-          value={`${kpi.digitalInvoiceRatePercent}%`}
-          description="Invoices delivered digitally"
-          badge="Delivery method"
-          icon={ReceiptText}
-          tone="blue"
-        />
-
-        <KpiCard
-          title="Paper Invoice Rate"
-          value={`${kpi.paperInvoiceRatePercent}%`}
-          description="Invoices delivered on paper"
-          badge="Delivery method"
-          icon={ReceiptText}
-          tone="green"
-        />
-
-        <KpiCard
-          title="Paid On Time"
-          value={`${kpi.paidOnTimeRatePercent}%`}
-          description="Paid invoices settled on or before due date"
-          badge="Payment behavior"
-          icon={CreditCard}
-          tone="amber"
-        />
-
-        <KpiCard
-          title="Late Payment"
-          value={`${kpi.latePaymentRatePercent}%`}
-          description="Paid invoices settled after due date"
-          badge="Payment behavior"
-          icon={CreditCard}
-          tone="red"
-        />
+        <div className="kpi-slider-row">
+          <KpiSlider size="sm" items={rateItems} />
+        </div>
       </div>
 
       <div className="dashboard-primary-chart">

@@ -1,6 +1,7 @@
 package invoice_insight_api.corporate.service;
 
 import invoice_insight_api.shared.dto.CurrentUsageResponse;
+import invoice_insight_api.shared.model.*;
 import invoice_insight_api.shared.service.InvoiceService;
 import invoice_insight_api.corporate.dto.DashboardSummaryResponse;
 import invoice_insight_api.corporate.dto.EmployeeResponse;
@@ -12,11 +13,6 @@ import invoice_insight_api.corporate.dto.UsageRankingItem;
 import invoice_insight_api.shared.enums.RecommendationStatus;
 import invoice_insight_api.shared.enums.Status;
 import invoice_insight_api.shared.exception.ResourceNotFoundException;
-import invoice_insight_api.shared.model.Customers;
-import invoice_insight_api.shared.model.Organization;
-import invoice_insight_api.shared.model.Subscription;
-import invoice_insight_api.shared.model.TariffPackage;
-import invoice_insight_api.shared.model.UsageSummary;
 import invoice_insight_api.shared.repository.CustomerRepository;
 import invoice_insight_api.shared.repository.OrganizationRepository;
 import invoice_insight_api.shared.repository.RecommendationRepository;
@@ -62,7 +58,7 @@ public class CorporateService {
                 .orElseThrow(() -> new ResourceNotFoundException("Çalışan bulunamadı"));
 
         List<Subscription> subscriptions = subscriptionRepository
-                .findByOrganization_IdAndCustomers_Id(organizationId, employeeId);
+                .findByOrganization_IdAndCustomer_Id(organizationId, employeeId);
 
         if (subscriptions.isEmpty()) {
             throw new ResourceNotFoundException("Çalışan bulunamadı");
@@ -254,7 +250,7 @@ public class CorporateService {
 
     private UsageRankingItem toUsageRankingItem(UsageSummary usage) {
         Subscription subscription = usage.getSubscription();
-        Customers customer = subscription.getCustomers();
+        Customers customer = subscription.getCustomer();
         TariffPackage tariffPackage = subscription.getTariffPackage();
 
         return new UsageRankingItem(
@@ -277,7 +273,7 @@ public class CorporateService {
     }
 
     private Optional<Subscription> primarySubscriptionFor(Long organizationId, Long customerId) {
-        return primarySubscriptionOf(subscriptionRepository.findByOrganization_IdAndCustomers_Id(organizationId, customerId));
+        return primarySubscriptionOf(subscriptionRepository.findByOrganization_IdAndCustomer_Id(organizationId, customerId));
     }
 
     private Optional<Subscription> primarySubscriptionOf(List<Subscription> subscriptions) {
@@ -365,7 +361,7 @@ public class CorporateService {
     }
 
     private SubscriptionResponse toSubscriptionResponse(Subscription subscription) {
-        Customers customer = subscription.getCustomers();
+        Customers customer = subscription.getCustomer();
 
         return new SubscriptionResponse(
                 subscription.getId(),

@@ -188,7 +188,7 @@ public class AdminDashboardService {
         List.of("18-25", "26-35", "36-45", "46-55", "56+").forEach(bucket -> buckets.put(bucket, BigDecimal.ZERO));
 
         for (Invoice invoice : invoices) {
-            int age = Period.between(invoice.getSubscription().getCustomers().getBirthDate(), today).getYears();
+            int age = Period.between(invoice.getSubscription().getCustomer().getBirthDate(), today).getYears();
             String bucket = ageBucket(age);
             buckets.put(bucket, buckets.get(bucket).add(invoice.getTotalAmount()));
         }

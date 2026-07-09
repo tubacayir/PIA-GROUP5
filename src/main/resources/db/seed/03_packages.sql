@@ -1,5 +1,5 @@
 -- Auto-generated seed script for packages
--- Source: Excel import (customers/organizations/packages/subscriptions)
+-- Source: Excel import (customer/organizations/packages/subscriptions)
 TRUNCATE TABLE packages RESTART IDENTITY CASCADE;
 
 INSERT INTO packages (id, package_code, package_name, description, internet_limit_gb, minute_limit, sms_limit, monthly_fee, status, created_at, updated_at) OVERRIDING SYSTEM VALUE VALUES

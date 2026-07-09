@@ -30,8 +30,8 @@ public class JwtService {
         this.expirationMs = expirationMs;
     }
 
-    public String generateToken(Customers customers) {
-        return buildToken(customers.getId().toString(), CUSTOMER_ROLE);
+    public String generateToken(Customers customer) {
+        return buildToken(customer.getId().toString(), CUSTOMER_ROLE);
     }
 
     public String generateToken(Organization organization) {

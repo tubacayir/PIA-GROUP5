@@ -11,11 +11,7 @@ import invoice_insight_api.admin.dto.UpdateOrganizationRequest;
 import invoice_insight_api.shared.enums.Status;
 import invoice_insight_api.shared.exception.DuplicateResourceException;
 import invoice_insight_api.shared.exception.ResourceNotFoundException;
-import invoice_insight_api.shared.model.Customers;
-import invoice_insight_api.shared.model.Invoice;
-import invoice_insight_api.shared.model.Organization;
-import invoice_insight_api.shared.model.Subscription;
-import invoice_insight_api.shared.model.TariffPackage;
+import invoice_insight_api.shared.model.*;
 import invoice_insight_api.shared.repository.InvoiceRepository;
 import invoice_insight_api.shared.repository.OrganizationRepository;
 import invoice_insight_api.shared.repository.SubscriptionRepository;
@@ -178,7 +174,7 @@ public class AdminOrganizationService {
     }
 
     private SubscriptionResponse toSubscriptionResponse(Subscription subscription) {
-        Customers customer = subscription.getCustomers();
+        Customers customer = subscription.getCustomer();
         TariffPackage tariffPackage = subscription.getTariffPackage();
 
         return new SubscriptionResponse(
@@ -203,7 +199,7 @@ public class AdminOrganizationService {
 
     private CorporateInvoiceSummaryResponse toCorporateInvoiceSummary(Invoice invoice) {
         Subscription subscription = invoice.getSubscription();
-        Customers customer = subscription.getCustomers();
+        Customers customer = subscription.getCustomer();
 
         return new CorporateInvoiceSummaryResponse(
                 invoice.getId(),

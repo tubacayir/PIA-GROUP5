@@ -57,13 +57,13 @@ export default function CustomerListPage() {
   };
 
   const {
-    data: customers,
+    data: customer,
     loading,
     error,
     setData,
   } = useAsyncData(() => getCustomers(filters), [search, city, gender, status, customerType, packageId]);
 
-  const filtered = customers ?? [];
+  const filtered = customer ?? [];
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
@@ -74,7 +74,7 @@ export default function CustomerListPage() {
   const noSubscriptionCount = filtered.filter((c) => c.subscriptionCount === 0).length;
 
   if (loading) {
-    return <LoadingState label="Loading customers..." />;
+    return <LoadingState label="Loading customer..." />;
   }
 
   if (error) {
@@ -106,7 +106,7 @@ export default function CustomerListPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-slate-500">Total Customers</p>
-              <p className="mt-2 text-2xl font-bold text-slate-900">{(customers ?? []).length}</p>
+              <p className="mt-2 text-2xl font-bold text-slate-900">{(customer ?? []).length}</p>
             </div>
             <div className="rounded-xl bg-blue-50 p-3">
               <Users className="h-6 w-6 text-blue-600" />
@@ -269,7 +269,7 @@ export default function CustomerListPage() {
                   </td>
                   <td className="px-5 py-4 text-right">
                     <Link
-                      to={`/customers/${customer.id}`}
+                      to={`/customer/${customer.id}`}
                       className="font-medium text-blue-600 hover:text-blue-800 hover:underline"
                     >
                       View Details
@@ -282,7 +282,7 @@ export default function CustomerListPage() {
 
           {paginated.length === 0 && (
             <div className="px-6 py-16 text-center">
-              <p className="font-medium text-slate-700">No customers found</p>
+              <p className="font-medium text-slate-700">No customer found</p>
               <p className="mt-1 text-sm text-slate-500">Try changing your search or filters.</p>
             </div>
           )}
@@ -290,7 +290,7 @@ export default function CustomerListPage() {
 
         <div className="flex flex-col gap-3 border-t border-slate-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-slate-500">
-            Showing {paginated.length} of {filtered.length} customers
+            Showing {paginated.length} of {filtered.length} customer
           </p>
 
           <div className="flex items-center gap-2">

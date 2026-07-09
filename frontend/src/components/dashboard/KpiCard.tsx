@@ -1,14 +1,20 @@
 import type { LucideIcon } from "lucide-react";
 
-type KpiTone = "blue" | "green" | "amber" | "red";
+export type KpiTone = "blue" | "green" | "amber" | "red";
 
-type KpiCardProps = {
+export type KpiCardProps = {
   title: string;
   value: string;
   description: string;
   badge: string;
   icon: LucideIcon;
   tone: KpiTone;
+  size?: "sm" | "lg";
+};
+
+const ICON_SIZE: Record<"sm" | "lg", number> = {
+  sm: 18,
+  lg: 30,
 };
 
 export default function KpiCard({
@@ -18,17 +24,18 @@ export default function KpiCard({
   badge,
   icon: Icon,
   tone,
+  size = "sm",
 }: KpiCardProps) {
   return (
     <article className={`kpi-card kpi-card-${tone}`}>
       <div className="kpi-card-top">
-        <div>
+        <div className="kpi-card-heading">
           <p className="kpi-card-title">{title}</p>
           <h2 className="kpi-card-value">{value}</h2>
         </div>
 
         <div className={`kpi-icon kpi-icon-${tone}`}>
-          <Icon size={20} strokeWidth={2} />
+          <Icon size={ICON_SIZE[size]} strokeWidth={2} />
         </div>
       </div>
 

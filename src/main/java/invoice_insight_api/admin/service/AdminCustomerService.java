@@ -14,12 +14,7 @@ import invoice_insight_api.shared.enums.Gender;
 import invoice_insight_api.shared.enums.Status;
 import invoice_insight_api.shared.exception.DuplicateResourceException;
 import invoice_insight_api.shared.exception.ResourceNotFoundException;
-import invoice_insight_api.shared.model.Customers;
-import invoice_insight_api.shared.model.Invoice;
-import invoice_insight_api.shared.model.Organization;
-import invoice_insight_api.shared.model.Subscription;
-import invoice_insight_api.shared.model.TariffPackage;
-import invoice_insight_api.shared.model.UsageSummary;
+import invoice_insight_api.shared.model.*;
 import invoice_insight_api.shared.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -59,7 +54,7 @@ public class AdminCustomerService {
         List<Subscription> allSubscriptions = subscriptionRepository.findAll();
 
         Map<Long, List<Subscription>> subscriptionsByCustomerId = allSubscriptions.stream()
-                .collect(Collectors.groupingBy(s -> s.getCustomers().getId()));
+                .collect(Collectors.groupingBy(s -> s.getCustomer().getId()));
 
         String normalizedSearch = search == null ? null : search.trim().toLowerCase();
         LocalDate today = LocalDate.now();
@@ -110,7 +105,7 @@ public class AdminCustomerService {
         Customers customer = customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Müşteri bulunamadı"));
 
-        List<Subscription> subscriptions = subscriptionRepository.findByCustomers_Id(id);
+        List<Subscription> subscriptions = subscriptionRepository.findByCustomer_Id(id);
 
         List<Invoice> invoices = subscriptions.stream()
                 .flatMap(s -> invoiceRepository.findBySubscription_IdOrderByIssueDateDesc(s.getId()).stream())
@@ -200,7 +195,11 @@ public class AdminCustomerService {
         Organization organization = request.organizationId() == null ? null : organizationRepository.findById(request.organizationId())
                 .orElseThrow(() -> new ResourceNotFoundException("Organizasyon bulunamadı"));
 
+        long nextCustomerSequence = customerRepository.count() + 1;
+        String customerNumber = String.format("CUST-%d-%06d", LocalDate.now().getYear(), nextCustomerSequence);
+
         Customers customer = new Customers();
+        customer.setCustomerNumber(customerNumber);
         customer.setTcIdentityNumber(request.tcIdentityNumber());
         customer.setFirstName(request.firstName());
         customer.setLastName(request.lastName());
@@ -219,7 +218,7 @@ public class AdminCustomerService {
         Subscription subscription = new Subscription();
         subscription.setSubscriptionNumber("SUB" + System.currentTimeMillis());
         subscription.setPhoneNumber(request.phoneNumber());
-        subscription.setCustomers(saved);
+        subscription.setCustomer(saved);
         subscription.setOrganization(organization);
         subscription.setTariffPackage(tariffPackage);
         subscription.setSubscriptionType(organization == null ? SubscriptionType.INDIVIDUAL : SubscriptionType.CORPORATE);
@@ -265,7 +264,7 @@ public class AdminCustomerService {
         customer.setUpdatedAt(LocalDateTime.now());
 
         Customers saved = customerRepository.save(customer);
-        List<Subscription> subs = subscriptionRepository.findByCustomers_Id(id);
+        List<Subscription> subs = subscriptionRepository.findByCustomer_Id(id);
         return toSummary(saved, subs, LocalDate.now());
     }
 

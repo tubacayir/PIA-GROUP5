@@ -32,3 +32,8 @@ build/
 ### VS Code ###
 .vscode/
 .DS_Store
+
+### Data import ###
+scripts/csv_import/.env
+scripts/csv_import/backup/
+scripts/csv_import/__pycache__/

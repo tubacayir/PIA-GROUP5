@@ -90,12 +90,12 @@ function App() {
               />
 
               <Route
-                path="/customers"
+                path="/customer"
                 element={<CustomerListPage />}
               />
 
               <Route
-                path="/customers/:id"
+                path="/customer/:id"
                 element={<CustomerDetailPage />}
               />
 

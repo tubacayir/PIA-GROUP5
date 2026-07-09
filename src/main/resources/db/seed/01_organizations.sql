@@ -1,5 +1,5 @@
 -- Auto-generated seed script for organizations
--- Source: Excel import (customers/organizations/packages/subscriptions)
+-- Source: Excel import (customer/organizations/packages/subscriptions)
 TRUNCATE TABLE organizations RESTART IDENTITY CASCADE;
 
 INSERT INTO organizations (id, tax_identity_number, organization_number, name, password, sector, employee_count, city, status, created_at, updated_at) OVERRIDING SYSTEM VALUE VALUES

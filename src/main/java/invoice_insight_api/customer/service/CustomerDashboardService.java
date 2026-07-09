@@ -34,7 +34,7 @@ public class CustomerDashboardService {
 
     public DashboardSummaryResponse getDashboardSummary(Long customerId) {
         List<Invoice> unpaidInvoices = invoiceRepository
-                .findBySubscription_Customers_IdAndStatusInOrderByDueDateAsc(customerId, UNPAID_STATUSES);
+                .findBySubscription_Customer_IdAndStatusInOrderByDueDateAsc(customerId, UNPAID_STATUSES);
 
         BigDecimal totalUnpaidAmount = unpaidInvoices.stream()
                 .map(Invoice::getTotalAmount)
@@ -49,7 +49,7 @@ public class CustomerDashboardService {
     }
 
     public CurrentUsageResponse getCurrentUsage(Long customerId) {
-        Optional<Subscription> primarySubscription = subscriptionRepository.findByCustomers_Id(customerId).stream()
+        Optional<Subscription> primarySubscription = subscriptionRepository.findByCustomer_Id(customerId).stream()
                 .sorted(Comparator
                         .comparing((Subscription s) -> s.getStatus() == Status.ACTIVE ? 0 : 1)
                         .thenComparing(Subscription::getStartDate, Comparator.reverseOrder()))

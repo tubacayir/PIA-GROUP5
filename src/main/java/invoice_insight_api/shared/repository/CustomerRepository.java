@@ -21,7 +21,7 @@ public interface CustomerRepository extends JpaRepository<Customers, Long> {
 
     Optional<Customers> findByPhoneNumber(String phoneNumber);
 
-    @Query("SELECT DISTINCT s.customers FROM Subscription s WHERE s.organization.id = :organizationId")
+    @Query("SELECT DISTINCT s.customer FROM Subscription s WHERE s.organization.id = :organizationId")
     List<Customers> findByOrganizationId(@Param("organizationId") Long organizationId);
 
     List<Customers> findByStatusNot(Status status);

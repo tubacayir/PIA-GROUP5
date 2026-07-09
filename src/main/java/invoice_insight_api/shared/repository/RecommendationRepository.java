@@ -14,7 +14,7 @@ public interface RecommendationRepository extends JpaRepository<Recommendation, 
 
     long countBySubscription_Organization_IdAndStatus(Long organizationId, RecommendationStatus status);
 
-    List<Recommendation> findBySubscription_Customers_IdAndStatusOrderByCreatedAtDesc(Long customerId, RecommendationStatus status);
+    List<Recommendation> findBySubscription_Customer_IdAndStatusOrderByCreatedAtDesc(Long customerId, RecommendationStatus status);
 
     List<Recommendation> findBySubscription_Organization_IdAndRecommendationTypeAndStatusOrderByConfidenceScoreDesc(
             Long organizationId, RecommendationType recommendationType, RecommendationStatus status);
