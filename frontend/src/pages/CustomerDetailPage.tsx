@@ -2,7 +2,6 @@ import { useState } from "react";
 import {
   ArrowLeft,
   Building2,
-  CreditCard,
   Gauge,
   MessageSquare,
   Pencil,
@@ -20,14 +19,13 @@ import { useAsyncData } from "../features/admin/useAsyncData";
 import { deleteCustomer, getCustomer, updateCustomer } from "../features/admin/adminService";
 import { formatCurrency, formatDate, formatMonthLabel, formatNumber } from "../features/admin/format";
 
-type CustomerTab = "overview" | "subscriptions" | "invoices" | "usage" | "payments";
+type CustomerTab = "overview" | "subscriptions" | "invoices" | "usage";
 
 const TABS: { id: CustomerTab; label: string }[] = [
   { id: "overview", label: "Overview" },
   { id: "subscriptions", label: "Subscriptions" },
   { id: "invoices", label: "Invoices" },
   { id: "usage", label: "Usage" },
-  { id: "payments", label: "Payments" },
 ];
 
 export default function CustomerDetailPage() {
@@ -262,7 +260,15 @@ function CustomerDetailContent({ customerId }: { customerId: number }) {
 
       {activeTab === "subscriptions" && (
         <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <table className="w-full">
+          <div className="overflow-x-auto">
+          <table className="w-full min-w-[760px] table-fixed">
+            <colgroup>
+              <col className="w-[20%]" />
+              <col className="w-[28%]" />
+              <col className="w-[22%]" />
+              <col className="w-[15%]" />
+              <col className="w-[15%]" />
+            </colgroup>
             <thead className="bg-slate-50">
               <tr className="border-b border-slate-200 text-left">
                 <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Phone Number</th>
@@ -275,17 +281,18 @@ function CustomerDetailContent({ customerId }: { customerId: number }) {
             <tbody>
               {customer.subscriptions.map((subscription) => (
                 <tr key={subscription.id} className="border-b border-slate-100">
-                  <td className="px-5 py-4 font-semibold text-slate-900">{subscription.phoneNumber}</td>
-                  <td className="px-5 py-4 text-sm text-slate-600">{subscription.packageName}</td>
-                  <td className="px-5 py-4 text-sm text-slate-600">{subscription.organizationName ?? "—"}</td>
-                  <td className="px-5 py-4 text-sm text-slate-600">{formatDate(subscription.startDate)}</td>
-                  <td className="px-5 py-4">
+                  <td className="whitespace-nowrap px-5 py-4 font-semibold text-slate-900">{subscription.phoneNumber}</td>
+                  <td className="truncate px-5 py-4 text-sm text-slate-600">{subscription.packageName}</td>
+                  <td className="truncate px-5 py-4 text-sm text-slate-600">{subscription.organizationName ?? "—"}</td>
+                  <td className="whitespace-nowrap px-5 py-4 text-sm text-slate-600">{formatDate(subscription.startDate)}</td>
+                  <td className="whitespace-nowrap px-5 py-4">
                     <StatusBadge status={subscription.status} />
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          </div>
 
           {customer.subscriptions.length === 0 && (
             <p className="px-5 py-10 text-center text-sm text-slate-500">No subscriptions found.</p>
@@ -295,30 +302,44 @@ function CustomerDetailContent({ customerId }: { customerId: number }) {
 
       {activeTab === "invoices" && (
         <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <table className="w-full">
+          <div className="overflow-x-auto">
+          <table className="w-full min-w-[860px] table-fixed">
+            <colgroup>
+              <col className="w-[20%]" />
+              <col className="w-[16%]" />
+              <col className="w-[16%]" />
+              <col className="w-[16%]" />
+              <col className="w-[16%]" />
+              <col className="w-[16%]" />
+            </colgroup>
             <thead className="bg-slate-50">
               <tr className="border-b border-slate-200 text-left">
                 <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Invoice</th>
                 <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Issue Date</th>
                 <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Due Date</th>
-                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Amount</th>
+                <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Amount</th>
+                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Payment Channel</th>
                 <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Status</th>
               </tr>
             </thead>
             <tbody>
               {customer.invoiceHistory.map((invoice) => (
                 <tr key={invoice.id} className="border-b border-slate-100">
-                  <td className="px-5 py-4 font-semibold text-slate-900">{invoice.invoiceNumber}</td>
-                  <td className="px-5 py-4 text-sm text-slate-600">{formatDate(invoice.issueDate)}</td>
-                  <td className="px-5 py-4 text-sm text-slate-600">{formatDate(invoice.dueDate)}</td>
-                  <td className="px-5 py-4 text-sm font-semibold text-slate-900">{formatCurrency(invoice.totalAmount)}</td>
-                  <td className="px-5 py-4">
+                  <td className="whitespace-nowrap px-5 py-4 font-semibold text-slate-900">{invoice.invoiceNumber}</td>
+                  <td className="whitespace-nowrap px-5 py-4 text-sm text-slate-600">{formatDate(invoice.issueDate)}</td>
+                  <td className="whitespace-nowrap px-5 py-4 text-sm text-slate-600">{formatDate(invoice.dueDate)}</td>
+                  <td className="whitespace-nowrap px-5 py-4 text-right text-sm font-semibold text-slate-900">{formatCurrency(invoice.totalAmount)}</td>
+                  <td className="truncate px-5 py-4 text-sm text-slate-600">
+                    {customer.paymentHistory.find((payment) => payment.invoiceNumber === invoice.invoiceNumber)?.paymentChannel ?? "—"}
+                  </td>
+                  <td className="whitespace-nowrap px-5 py-4">
                     <StatusBadge status={invoice.status} />
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          </div>
 
           {customer.invoiceHistory.length === 0 && (
             <p className="px-5 py-10 text-center text-sm text-slate-500">No invoices found.</p>
@@ -337,13 +358,19 @@ function CustomerDetailContent({ customerId }: { customerId: number }) {
             <p className="mt-4 text-sm text-slate-500">No usage history found.</p>
           ) : (
             <div className="mt-4 overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full min-w-[560px] table-fixed">
+                <colgroup>
+                  <col className="w-[28%]" />
+                  <col className="w-[24%]" />
+                  <col className="w-[24%]" />
+                  <col className="w-[24%]" />
+                </colgroup>
                 <thead>
                   <tr className="border-b border-slate-200 text-left">
                     <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Period</th>
-                    <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Internet (GB)</th>
-                    <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Voice (min)</th>
-                    <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-500">SMS</th>
+                    <th className="px-3 py-2 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Internet (GB)</th>
+                    <th className="px-3 py-2 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">Voice (min)</th>
+                    <th className="px-3 py-2 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">SMS</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -352,55 +379,13 @@ function CustomerDetailContent({ customerId }: { customerId: number }) {
                       <td className="px-3 py-2.5 text-sm font-medium text-slate-900">
                         {formatMonthLabel(point.year, point.month)}
                       </td>
-                      <td className="px-3 py-2.5 text-sm text-slate-600">{formatNumber(point.internetGb)}</td>
-                      <td className="px-3 py-2.5 text-sm text-slate-600">{formatNumber(point.voiceMinutes)}</td>
-                      <td className="px-3 py-2.5 text-sm text-slate-600">{formatNumber(point.smsCount)}</td>
+                      <td className="px-3 py-2.5 text-right text-sm text-slate-600">{formatNumber(point.internetGb)}</td>
+                      <td className="px-3 py-2.5 text-right text-sm text-slate-600">{formatNumber(point.voiceMinutes)}</td>
+                      <td className="px-3 py-2.5 text-right text-sm text-slate-600">{formatNumber(point.smsCount)}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-            </div>
-          )}
-        </section>
-      )}
-
-      {activeTab === "payments" && (
-        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <table className="w-full">
-            <thead className="bg-slate-50">
-              <tr className="border-b border-slate-200 text-left">
-                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Invoice</th>
-                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Payment Date</th>
-                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Channel</th>
-                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Amount</th>
-                <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">On Time</th>
-              </tr>
-            </thead>
-            <tbody>
-              {customer.paymentHistory.map((payment, index) => (
-                <tr key={index} className="border-b border-slate-100">
-                  <td className="px-5 py-4 font-semibold text-slate-900">{payment.invoiceNumber}</td>
-                  <td className="px-5 py-4 text-sm text-slate-600">{formatDate(payment.paymentDate)}</td>
-                  <td className="px-5 py-4 text-sm text-slate-600">{payment.paymentChannel ?? "—"}</td>
-                  <td className="px-5 py-4 text-sm font-semibold text-slate-900">{formatCurrency(payment.amount)}</td>
-                  <td className="px-5 py-4">
-                    <span
-                      className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                        payment.onTime ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
-                      }`}
-                    >
-                      {payment.onTime ? "On Time" : "Late"}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          {customer.paymentHistory.length === 0 && (
-            <div className="flex flex-col items-center gap-2 px-6 py-16 text-center">
-              <CreditCard className="h-8 w-8 text-slate-300" />
-              <p className="text-sm text-slate-500">No payment records found.</p>
             </div>
           )}
         </section>

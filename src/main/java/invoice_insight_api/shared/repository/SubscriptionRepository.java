@@ -34,4 +34,5 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
     @Query("SELECT s.tariffPackage.id, s.tariffPackage.packageName, COUNT(s) FROM Subscription s " +
             "GROUP BY s.tariffPackage.id, s.tariffPackage.packageName ORDER BY COUNT(s) DESC")
     List<Object[]> countBySubscriptionsGroupedByPackage(Pageable pageable);
+
 }

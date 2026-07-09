@@ -49,6 +49,10 @@ export interface AdminDashboardCharts {
   topPackages: NameCountItem[];
   topCompanies: NameAmountItem[];
   usageDistribution: NameCountItem[];
+  invoiceAmountByAgeGroup: NameAmountItem[];
+  invoiceAmountByPaymentChannel: NameAmountItem[];
+  invoiceAmountByDeliveryMethod: NameAmountItem[];
+  invoiceAmountByPackageUsage: NameAmountItem[];
   latePaymentTrend: MonthlyCountPoint[];
 }
 
@@ -137,6 +141,8 @@ export interface CreateCustomerRequest {
   birthDate: string;
   gender: Gender;
   city: string;
+  tariffPackageId: number;
+  organizationId?: number;
 }
 
 export interface UpdateCustomerRequest {

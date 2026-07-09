@@ -14,7 +14,6 @@ export default function NavBar() {
   return (
     <nav className="flex gap-6 p-4 bg-gray-800 text-white items-center">
       <Link to="/" className="hover:underline">Customers</Link>
-      <Link to="/invoices" className="hover:underline">Invoices</Link>
       <Link to="/dashboard" className="hover:underline">Dashboard</Link>
 
       <div className="ml-auto flex items-center gap-4">

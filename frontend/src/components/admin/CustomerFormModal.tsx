@@ -1,7 +1,9 @@
 import { useState } from "react";
 
 import Modal from "./Modal";
-import type { AdminCustomerDetail, Gender } from "../../features/admin/adminTypes";
+import type { AdminCustomerDetail, AdminOrganizationSummary, AdminPackageInfo, Gender } from "../../features/admin/adminTypes";
+
+type CustomerAccountType = "Individual" | "Corporate";
 
 interface CustomerFormValues {
   tcIdentityNumber: string;
@@ -13,11 +15,16 @@ interface CustomerFormValues {
   birthDate: string;
   gender: Gender;
   city: string;
+  tariffPackageId: string;
+  customerType: CustomerAccountType;
+  organizationId: string;
 }
 
 interface CustomerFormModalProps {
   mode: "create" | "edit";
   initialValues?: AdminCustomerDetail;
+  packages?: AdminPackageInfo[];
+  organizations?: AdminOrganizationSummary[];
   onClose: () => void;
   onSubmit: (values: CustomerFormValues) => Promise<void>;
 }
@@ -32,9 +39,19 @@ const EMPTY_VALUES: CustomerFormValues = {
   birthDate: "",
   gender: "MALE",
   city: "",
+  tariffPackageId: "",
+  customerType: "Individual",
+  organizationId: "",
 };
 
-export default function CustomerFormModal({ mode, initialValues, onClose, onSubmit }: CustomerFormModalProps) {
+export default function CustomerFormModal({
+  mode,
+  initialValues,
+  packages = [],
+  organizations = [],
+  onClose,
+  onSubmit,
+}: CustomerFormModalProps) {
   const [values, setValues] = useState<CustomerFormValues>(
     initialValues
       ? {
@@ -47,6 +64,9 @@ export default function CustomerFormModal({ mode, initialValues, onClose, onSubm
           birthDate: initialValues.birthDate,
           gender: initialValues.gender,
           city: initialValues.city,
+          tariffPackageId: "",
+          customerType: "Individual",
+          organizationId: "",
         }
       : EMPTY_VALUES
   );
@@ -137,17 +157,6 @@ export default function CustomerFormModal({ mode, initialValues, onClose, onSubm
           />
         </div>
 
-        <div>
-          <label className={labelClass}>Phone Number</label>
-          <input
-            type="text"
-            required
-            value={values.phoneNumber}
-            onChange={(event) => update("phoneNumber", event.target.value)}
-            className={inputClass}
-          />
-        </div>
-
         {mode === "create" && (
           <div>
             <label className={labelClass}>Password</label>
@@ -160,6 +169,17 @@ export default function CustomerFormModal({ mode, initialValues, onClose, onSubm
             />
           </div>
         )}
+
+        <div>
+          <label className={labelClass}>Phone Number</label>
+          <input
+            type="text"
+            required
+            value={values.phoneNumber}
+            onChange={(event) => update("phoneNumber", event.target.value)}
+            className={inputClass}
+          />
+        </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
@@ -198,6 +218,71 @@ export default function CustomerFormModal({ mode, initialValues, onClose, onSubm
             className={inputClass}
           />
         </div>
+
+        {mode === "create" && (
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={labelClass}>Customer Type</label>
+              <select
+                value={values.customerType}
+                onChange={(event) => {
+                  const customerType = event.target.value as CustomerAccountType;
+                  setValues((current) => ({
+                    ...current,
+                    customerType,
+                    organizationId: customerType === "Corporate" ? current.organizationId : "",
+                  }));
+                }}
+                className={inputClass}
+              >
+                <option value="Individual">Individual</option>
+                <option value="Corporate">Corporate</option>
+              </select>
+            </div>
+
+            {values.customerType === "Corporate" && (
+              <div>
+                <label className={labelClass}>Organization</label>
+                <select
+                  required
+                  value={values.organizationId}
+                  onChange={(event) => update("organizationId", event.target.value)}
+                  className={inputClass}
+                >
+                  <option value="" disabled>
+                    Select organization
+                  </option>
+                  {organizations.map((organization) => (
+                    <option key={organization.id} value={organization.id}>
+                      {organization.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
+        )}
+
+        {mode === "create" && (
+          <div>
+            <label className={labelClass}>Package</label>
+            <select
+              required
+              value={values.tariffPackageId}
+              onChange={(event) => update("tariffPackageId", event.target.value)}
+              className={inputClass}
+            >
+              <option value="" disabled>
+                Select package
+              </option>
+              {packages.map((pkg) => (
+                <option key={pkg.id} value={pkg.id}>
+                  {pkg.packageName}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div className="mt-2 flex justify-end gap-3">
           <button

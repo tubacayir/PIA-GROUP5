@@ -16,17 +16,17 @@ import invoice_insight_api.shared.exception.DuplicateResourceException;
 import invoice_insight_api.shared.exception.ResourceNotFoundException;
 import invoice_insight_api.shared.model.Customers;
 import invoice_insight_api.shared.model.Invoice;
+import invoice_insight_api.shared.model.Organization;
 import invoice_insight_api.shared.model.Subscription;
 import invoice_insight_api.shared.model.TariffPackage;
 import invoice_insight_api.shared.model.UsageSummary;
-import invoice_insight_api.shared.repository.CustomerRepository;
-import invoice_insight_api.shared.repository.InvoiceRepository;
-import invoice_insight_api.shared.repository.SubscriptionRepository;
-import invoice_insight_api.shared.repository.UsageSummaryRepository;
+import invoice_insight_api.shared.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import invoice_insight_api.shared.enums.SubscriptionType;
+
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -48,6 +48,9 @@ public class AdminCustomerService {
     private final InvoiceRepository invoiceRepository;
     private final UsageSummaryRepository usageSummaryRepository;
     private final PasswordEncoder passwordEncoder;
+    private final TariffPackageRepository tariffPackageRepository;
+    private final OrganizationRepository organizationRepository;
+
 
     public List<AdminCustomerSummaryResponse> getCustomers(String search, String city, Gender gender,
                                                              Status status, String customerType,
@@ -192,6 +195,11 @@ public class AdminCustomerService {
             throw new DuplicateResourceException("Bu telefon numarası zaten kayıtlı");
         }
 
+        TariffPackage tariffPackage = tariffPackageRepository.findById(request.tariffPackageId())
+                .orElseThrow(() -> new ResourceNotFoundException("Paket bulunamadı"));
+        Organization organization = request.organizationId() == null ? null : organizationRepository.findById(request.organizationId())
+                .orElseThrow(() -> new ResourceNotFoundException("Organizasyon bulunamadı"));
+
         Customers customer = new Customers();
         customer.setTcIdentityNumber(request.tcIdentityNumber());
         customer.setFirstName(request.firstName());
@@ -207,9 +215,30 @@ public class AdminCustomerService {
         customer.setUpdatedAt(LocalDateTime.now());
 
         Customers saved = customerRepository.save(customer);
-        return toSummary(saved, List.of(), LocalDate.now());
-    }
 
+        Subscription subscription = new Subscription();
+        subscription.setSubscriptionNumber("SUB" + System.currentTimeMillis());
+        subscription.setPhoneNumber(request.phoneNumber());
+        subscription.setCustomers(saved);
+        subscription.setOrganization(organization);
+        subscription.setTariffPackage(tariffPackage);
+        subscription.setSubscriptionType(organization == null ? SubscriptionType.INDIVIDUAL : SubscriptionType.CORPORATE);
+        subscription.setStartDate(LocalDate.now());
+        subscription.setStatus(Status.ACTIVE);
+        subscription.setCommitmentStartDate(LocalDate.now());
+        subscription.setCommitmentEndDate(LocalDate.now().plusMonths(12));
+        subscription.setCreatedAt(LocalDateTime.now());
+        subscription.setUpdatedAt(LocalDateTime.now());
+
+        Subscription savedSubscription = subscriptionRepository.save(subscription);
+
+        if (organization != null) {
+            organization.setEmployeeCount((organization.getEmployeeCount() == null ? 0 : organization.getEmployeeCount()) + 1);
+            organization.setUpdatedAt(LocalDateTime.now());
+        }
+
+        return toSummary(saved, List.of(savedSubscription), LocalDate.now());
+    }
     @Transactional
     public AdminCustomerSummaryResponse updateCustomer(Long id, UpdateCustomerRequest request) {
         Customers customer = customerRepository.findById(id)
