@@ -19,7 +19,7 @@ export default function RankedAmountListCard({
   formatAmount,
 }: RankedAmountListCardProps) {
   return (
-    <section className="analytics-card">
+    <section className="analytics-card flex h-full flex-col">
       <div className="chart-card-header">
         <div>
           <p className="chart-card-eyebrow">{eyebrow}</p>
@@ -28,16 +28,16 @@ export default function RankedAmountListCard({
         </div>
       </div>
 
-      <div className="mt-5 divide-y divide-slate-100">
+      <div className="mt-5 flex flex-1 flex-col justify-center divide-y divide-slate-100">
         {data.map((item, index) => (
           <div key={item.name} className="flex items-center justify-between gap-4 py-3">
-            <div className="flex items-center gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-xs font-bold text-slate-600">
+            <div className="flex min-w-0 flex-1 items-center gap-3">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-xs font-bold text-slate-600">
                 {index + 1}
               </div>
-              <p className="text-sm font-semibold text-slate-900">{item.name}</p>
+              <p className="truncate text-sm font-semibold text-slate-900">{item.name}</p>
             </div>
-            <p className="text-sm font-bold text-slate-950">{formatAmount(item.amount)}</p>
+            <p className="shrink-0 whitespace-nowrap text-sm font-bold text-slate-950">{formatAmount(item.amount)}</p>
           </div>
         ))}
 

@@ -109,7 +109,7 @@ export default function TurkeyCitiesMapCard({ eyebrow, title, subtitle, data }: 
   };
 
   return (
-    <section className="analytics-card lg:col-span-2">
+    <section className="analytics-card flex h-full flex-col">
       <div className="chart-card-header">
         <div>
           <p className="chart-card-eyebrow">{eyebrow}</p>
@@ -118,9 +118,15 @@ export default function TurkeyCitiesMapCard({ eyebrow, title, subtitle, data }: 
         </div>
       </div>
 
-      <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_240px]">
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-sky-50 via-white to-emerald-50 p-4">
-          <svg viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`} role="img" aria-label="Türkiye il haritası" className="h-[330px] w-full">
+      <div className="mt-5 grid flex-1 gap-5 lg:grid-cols-[minmax(0,1fr)_260px]">
+        <div className="flex items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-sky-50 via-white to-emerald-50 p-4">
+          <svg
+            viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`}
+            role="img"
+            aria-label="Türkiye il haritası"
+            className="w-full"
+            style={{ aspectRatio: `${MAP_WIDTH} / ${MAP_HEIGHT}` }}
+          >
             <defs>
               <filter id="provinceShadow" x="-20%" y="-20%" width="140%" height="140%">
                 <feDropShadow dx="0" dy="8" stdDeviation="10" floodColor="#0f172a" floodOpacity="0.08" />

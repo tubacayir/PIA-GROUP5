@@ -31,7 +31,7 @@ export default function NameCountBarCard({
   layout = "vertical",
 }: NameCountBarCardProps) {
   return (
-    <section className="analytics-card">
+    <section className="analytics-card flex h-full flex-col">
       <div className="chart-card-header">
         <div>
           <p className="chart-card-eyebrow">{eyebrow}</p>
@@ -40,13 +40,14 @@ export default function NameCountBarCard({
         </div>
       </div>
 
-      <div style={{ width: "100%", height: 260, marginTop: 22 }}>
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="flex flex-1 items-center" style={{ width: "100%", minHeight: 260, marginTop: 22 }}>
+        <ResponsiveContainer width="100%" height={260}>
           {layout === "vertical" ? (
             <BarChart
               data={data}
               layout="vertical"
               margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
+              barCategoryGap="28%"
             >
               <CartesianGrid horizontal={false} stroke="#f1f5f9" />
               <XAxis type="number" hide />
@@ -56,7 +57,7 @@ export default function NameCountBarCard({
                 axisLine={false}
                 tickLine={false}
                 width={110}
-                tick={{ fill: "#475569", fontSize: 12 }}
+                tick={{ fill: "#64748b", fontSize: 12 }}
               />
               <Tooltip
                 contentStyle={{
@@ -68,13 +69,13 @@ export default function NameCountBarCard({
               <Bar dataKey="count" fill={barColor} barSize={14} radius={[0, 8, 8, 0]} />
             </BarChart>
           ) : (
-            <BarChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+            <BarChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }} barCategoryGap="28%">
               <CartesianGrid vertical={false} stroke="#f1f5f9" />
               <XAxis
                 dataKey="name"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: "#475569", fontSize: 12 }}
+                tick={{ fill: "#64748b", fontSize: 12 }}
               />
               <YAxis axisLine={false} tickLine={false} tick={{ fill: "#94a3b8", fontSize: 12 }} width={40} />
               <Tooltip

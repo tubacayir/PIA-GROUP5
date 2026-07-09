@@ -31,7 +31,7 @@ export default function MonthlyAmountBarCard({
   barColor = "#0ea5e9",
 }: MonthlyAmountBarCardProps) {
   return (
-    <section className="analytics-card">
+    <section className="analytics-card flex h-full flex-col">
       <div className="chart-card-header">
         <div>
           <p className="chart-card-eyebrow">{eyebrow}</p>
@@ -42,7 +42,7 @@ export default function MonthlyAmountBarCard({
 
       <div style={{ width: "100%", height: 280, marginTop: 22 }}>
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+          <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }} barCategoryGap="35%" maxBarSize={56}>
             <CartesianGrid stroke="#e2e8f0" strokeDasharray="4 4" vertical={false} />
             <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fill: "#94a3b8", fontSize: 12 }} />
             <YAxis

@@ -29,7 +29,7 @@ export default function MonthlyCountAreaCard({
   strokeColor = "#ef4444",
 }: MonthlyCountAreaCardProps) {
   return (
-    <section className="analytics-card">
+    <section className="analytics-card flex h-full flex-col">
       <div className="chart-card-header">
         <div>
           <p className="chart-card-eyebrow">{eyebrow}</p>
@@ -38,8 +38,8 @@ export default function MonthlyCountAreaCard({
         </div>
       </div>
 
-      <div style={{ width: "100%", height: 280, marginTop: 22 }}>
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="flex flex-1 items-center" style={{ width: "100%", minHeight: 260, marginTop: 22 }}>
+        <ResponsiveContainer width="100%" height={260}>
           <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="latePaymentGradient" x1="0" y1="0" x2="0" y2="1">
